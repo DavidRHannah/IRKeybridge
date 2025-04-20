@@ -1,0 +1,4 @@
+*.txt
+./elegoo-remote
+read-output.py
+/__pycache__/*
