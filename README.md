@@ -31,4 +31,4 @@ You *should* now be able to use your remote! Hopefully...
 
 
 ## Why Bother
-- I play a lot of Beamng.Drive and there are only so many buttons on my Logitech G920 whell that can be used to easily control the game. Reaching up to reach use the keyboard is not fun and really annoying, so I decided to figure out a way to add easily accessible keyboard controls without spending another dollar. It allows me to have a lot more fun for free! 
+- I play a lot of Beamng.Drive and there are only so many buttons on my Logitech G920 wheel that can be used to easily control the game. Reaching up to reach use the keyboard is not fun and really annoying, so I decided to figure out a way to add easily accessible keyboard controls without spending another dollar. It allows me to have a lot more fun for free! 
