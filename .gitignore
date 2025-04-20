@@ -2,3 +2,10 @@
 ./elegoo-remote
 read-output.py
 /__pycache__/*
+/build/*
+/dist/*
+admin.manifest
+ir_control2.py
+control.py
+*.spec
+ir_codes.py
