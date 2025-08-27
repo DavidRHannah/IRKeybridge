@@ -17,6 +17,10 @@ CC           = '39'
 RECORD       = '34'
 STOP         = '30'
 MENU         = '4F'
+TOP_LEFT     = '49'
+TOP_RIGHT    = '1B'
+BOTTOM_LEFT  = '4A'
+RIGHT_LEFT   = '1C'
 UP           = '45'
 DOWN         = '46'
 LEFT         = '47'
@@ -61,32 +65,36 @@ class IRRemoteController:
         
         # Key bindings configuration
         self.ir_to_action = {
-            INPUT: ('combo', ['ctrl', 'a']),
-            POWER: ('single', 'v'),
+            INPUT: ('combo', ['ctrl','a']),
+            POWER: ('combo', ['ctrl','a']),
             AMAZON: ('sequence', ['windows', 'a']),
-            NETFLIX: ('single', 'n'),
-            IHEART: ('single', 'i'),
-            REWIND: ('single', 'backspace'),
-            PAUSE: ('single', 'space'),
-            PLAY: ('single', 'space'),
-            FAST_FORWARD: ('single', 'right'),
-            CC: ('single', 'c'),
-            RECORD: ('single', 'r'),
-            STOP: ('single', 's'),
-            MENU: ('single', 'esc'),
-            UP: ('single', 'up'),
-            DOWN: ('single', 'down'),
-            LEFT: ('single', 'left'),
-            RIGHT: ('single', 'right'),
-            SELECT: ('single', 'enter'),
-            VOLUME_UP: ('single', 'volume up'),
-            VOLUME_DOWN: ('single', 'volume down'),
-            HOME: ('single', 'home'),
-            CHANNEL_UP: ('single', 'page up'),
-            CHANNEL_DOWN: ('single', 'page down'),
-            MUTE: ('single', 'f'),
-            DISPLAY: ('single', 'd'),
-            PIC: ('single', 'p'),
+            NETFLIX: ('combo', 'n'),
+            IHEART: ('combo', 'i'),
+            REWIND: ('combo', ['ctrl','backspace']),
+            PAUSE: ('combo', ['ctrl','a']),
+            PLAY: ('combo', ['ctrl','a']),
+            FAST_FORWARD: ('combo', ['ctrl','a']),
+            CC: ('combo', ['ctrl','a']),
+            RECORD: ('combo', ['ctrl','a']),
+            STOP: ('combo', ['ctrl','a']),
+            MENU: ('combo', ['ctrl','a']),
+            TOP_LEFT: ('combo', ['ctrl','a']),
+            TOP_RIGHT: ('combo', ['ctrl','a']),
+            BOTTOM_LEFT: ('combo', ['ctrl','a']),
+            RIGHT_LEFT: ('combo', ['ctrl','a']),
+            UP: ('combo', ['ctrl','up']),
+            DOWN: ('combo', ['ctrl','down']),
+            LEFT: ('combo', ['ctrl','left']),
+            RIGHT: ('combo', ['ctrl','right']),
+            SELECT: ('combo', ['ctrl','enter']),
+            VOLUME_UP: ('combo', 'volume up'),
+            VOLUME_DOWN: ('combo', 'volume down'),
+            HOME: ('combo', ['ctrl','home']),
+            CHANNEL_UP: ('combo', ['ctrl','page up']),
+            CHANNEL_DOWN: ('combo', ['ctrl', 'page down']),
+            MUTE: ('combo', ['ctrl','f']),
+            DISPLAY: ('combo', ['ctrl','a']),
+            PIC: ('combo', ['ctrl','a']),
             REVERT: ('special', 'toggle_tap'),
             NUM_1: ('single', '1'),
             NUM_2: ('single', '2'),
