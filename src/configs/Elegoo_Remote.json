@@ -1,0 +1,113 @@
+{
+  "name": "Elegoo Remote",
+  "brand": "Elegoo",
+  "model": "Generic IR Remote",
+  "description": "Configuration for standard Elegoo IR remote control kit",
+  "mappings": {
+    "45": {
+      "action_type": "combo",
+      "keys": ["ctrl", "a"],
+      "description": "Power button"
+    },
+    "46": {
+      "action_type": "combo",
+      "keys": ["volume up"],
+      "description": "Volume Up"
+    },
+    "47": {
+      "action_type": "special",
+      "keys": "stop",
+      "description": "Function/Stop - Stops controller"
+    },
+    "44": {
+      "action_type": "combo",
+      "keys": ["ctrl", "backspace"],
+      "description": "Rewind"
+    },
+    "40": {
+      "action_type": "combo",
+      "keys": ["space"],
+      "description": "Pause/Play"
+    },
+    "43": {
+      "action_type": "combo",
+      "keys": ["ctrl", "f"],
+      "description": "Fast Forward"
+    },
+    "7": {
+      "action_type": "combo",
+      "keys": ["ctrl", "down"],
+      "description": "Down arrow"
+    },
+    "15": {
+      "action_type": "combo",
+      "keys": ["volume down"],
+      "description": "Volume Down"
+    },
+    "9": {
+      "action_type": "combo",
+      "keys": ["ctrl", "up"],
+      "description": "Up arrow"
+    },
+    "16": {
+      "action_type": "single",
+      "keys": "0",
+      "description": "Number 0"
+    },
+    "19": {
+      "action_type": "combo",
+      "keys": ["ctrl", "e"],
+      "description": "EQ - Equalizer settings"
+    },
+    "D": {
+      "action_type": "special",
+      "keys": "toggle_tap",
+      "description": "ST/REPT - Toggle single tap mode"
+    },
+    "C": {
+      "action_type": "single",
+      "keys": "1",
+      "description": "Number 1"
+    },
+    "18": {
+      "action_type": "single",
+      "keys": "2",
+      "description": "Number 2"
+    },
+    "5E": {
+      "action_type": "single",
+      "keys": "3",
+      "description": "Number 3"
+    },
+    "8": {
+      "action_type": "single",
+      "keys": "4",
+      "description": "Number 4"
+    },
+    "1C": {
+      "action_type": "single",
+      "keys": "5",
+      "description": "Number 5"
+    },
+    "5A": {
+      "action_type": "single",
+      "keys": "6",
+      "description": "Number 6"
+    },
+    "42": {
+      "action_type": "single",
+      "keys": "7",
+      "description": "Number 7"
+    },
+    "52": {
+      "action_type": "single",
+      "keys": "8",
+      "description": "Number 8"
+    },
+    "4A": {
+      "action_type": "single",
+      "keys": "9",
+      "description": "Number 9"
+    }
+  }
+}
