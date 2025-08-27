@@ -9,3 +9,4 @@ ir_control2.py
 control.py
 *.spec
 ir_codes.py
+/plans
