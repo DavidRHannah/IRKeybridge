@@ -1,5 +1,5 @@
 import sys
-from old_src.ir_control import IRRemoteController
+from main_controller import IRRemoteController
 
 if __name__ == "__main__":
     controller = IRRemoteController()
