@@ -61,12 +61,12 @@ class SerialMonitor(QThread):
         self.running = False
         self.port_name = ""
         self.baud_rate = 9600
-        self.auto_connect= True,
-        self.debug_mode= True,
-        self.timeout= 0.1,
-        self.ghost_key= "f10",
-        self.ghost_delay= 0.2,
-        self.repeat_threshold= 0.2
+        self.auto_connect = (True,)
+        self.debug_mode = (True,)
+        self.timeout = (0.1,)
+        self.ghost_key = ("f10",)
+        self.ghost_delay = (0.2,)
+        self.repeat_threshold = 0.2
 
     def connect_arduino(self, port, baud_rate=9600):
         try:
@@ -116,86 +116,227 @@ class SerialMonitor(QThread):
                 break
 
 
-class ConfigManager:
-    """Manages JSON configuration files"""
+class GUIConfigManager:
+    """GUI-specific configuration manager that integrates with the main application"""
 
     def __init__(self, config_dir="config"):
         self.config_dir = Path(config_dir)
         self.config_dir.mkdir(exist_ok=True)
 
-        self.default_config = {
-            "system": {
-                "arduino_port": "",
-                "serial_port": "COM4",
-                "baud_rate": 9600,
-                "auto_connect": True,
-                "debug_mode": True,
-                "timeout": 0.1,
-                "ghost_key": "f10",
-                "ghost_delay": 0.2,
-                "repeat_threshold": 0.2
-            },
-            "remotes": {},
-            "profiles": {},
+        sys.path.insert(0, str(Path(__file__).parent))
+        from config_manager import (
+            ConfigManager as MainConfigManager,
+            RemoteProfile,
+            KeyMapping,
+            ActionType,
+        )
+
+        self.main_config = MainConfigManager(config_dir=str(self.config_dir))
+
+        self.RemoteProfile = RemoteProfile
+        self.KeyMapping = KeyMapping
+        self.ActionType = ActionType
+
+        self.gui_config_file = self.config_dir / "gui_config.json"
+        self.gui_config = self.load_gui_config()
+
+        self.temp_remotes = {}
+
+    def load_gui_config(self):
+        """Load GUI-specific configuration (window settings, etc.)"""
+        default_gui_config = {
+            "window_geometry": None,
+            "last_tab": 0,
+            "arduino_port": "",
+            "baud_rate": 9600,
+            "auto_connect": False,
+            "debug_mode": False,
         }
 
-        self.config_file = self.config_dir / "ir_config.json"
-        self.load_config()
-
-    def load_config(self):
         try:
-            if self.config_file.exists():
-                with open(self.config_file, "r") as f:
-                    self.config = json.load(f)
-            else:
-                self.config = self.default_config.copy()
-                self.save_config()
+            if self.gui_config_file.exists():
+                with open(self.gui_config_file, "r") as f:
+                    config = json.load(f)
+                    default_gui_config.update(config)
+            return default_gui_config
         except Exception as e:
-            print(f"Error loading config: {e}")
-            self.config = self.default_config.copy()
+            print(f"Error loading GUI config: {e}")
+            return default_gui_config
 
-    def save_config(self):
+    def save_gui_config(self):
+        """Save GUI-specific configuration"""
         try:
-            with open(self.config_file, "w") as f:
-                json.dump(self.config, f, indent=2)
+            with open(self.gui_config_file, "w") as f:
+                json.dump(self.gui_config, f, indent=2)
             return True
         except Exception as e:
-            print(f"Error saving config: {e}")
+            print(f"Error saving GUI config: {e}")
             return False
 
+    def save_config(self):
+        """Save all configurations (for compatibility with main window)"""
+        return self.save_gui_config()
+
+    def get_profiles(self):
+        """Get all available profiles from the main config manager"""
+        return self.main_config.list_profiles()
+
+    def load_profile(self, filename):
+        """Load a profile using the main config manager"""
+        return self.main_config.load_profile(filename)
+
+    def save_profile(self, profile):
+        """Save a profile using the main config manager"""
+        return self.main_config.save_profile(profile)
+
     def get_remotes(self):
-        return self.config.get("remotes", {})
+        """Get remotes - combination of temp remotes and existing profiles converted back"""
+        remotes = {}
+
+        remotes.update(self.temp_remotes)
+
+        profile_files = self.main_config.list_profiles()
+        for filename in profile_files:
+            profile = self.main_config.load_profile(filename)
+            if profile:
+
+                gui_remote = self.profile_to_gui_format(profile)
+                remotes[profile.name] = gui_remote
+
+        return remotes
+
+    def profile_to_gui_format(self, profile):
+        """Convert a RemoteProfile to GUI format"""
+        gui_remote = {
+            "name": profile.name,
+            "brand": profile.brand,
+            "model": profile.model,
+            "notes": profile.description,
+            "buttons": {},
+            "created": "",
+            "modified": "",
+        }
+
+        for code, mapping in profile.mappings.items():
+
+            button_name = mapping.description.replace(" button", "").replace(" ", "_")
+            if not button_name or button_name == "":
+                button_name = f"button_{code}"
+
+            gui_remote["buttons"][button_name] = {
+                "code": code,
+                "protocol": "NEC",
+                "action_type": mapping.action_type.value,
+                "keys": mapping.keys,
+                "description": mapping.description,
+            }
+
+        return gui_remote
 
     def add_remote(self, name, remote_data):
-        if "remotes" not in self.config:
-            self.config["remotes"] = {}
-        self.config["remotes"][name] = remote_data
-        self.save_config()
+        """Add a remote - store temporarily and create profile"""
+
+        self.temp_remotes[name] = remote_data
+
+        try:
+            profile = self.create_profile_from_remote(remote_data)
+            success = self.save_profile(profile)
+            if success:
+                print(f"Successfully saved profile for remote '{name}'")
+
+                if name in self.temp_remotes:
+                    del self.temp_remotes[name]
+            return success
+        except Exception as e:
+            print(f"Error creating profile from remote: {e}")
+            return False
 
     def delete_remote(self, name):
-        if name in self.config.get("remotes", {}):
-            del self.config["remotes"][name]
-            self.save_config()
+        """Delete a remote - remove from temp storage and delete profile"""
+
+        if name in self.temp_remotes:
+            del self.temp_remotes[name]
+
+        profile_files = self.main_config.list_profiles()
+        for filename in profile_files:
+            profile = self.main_config.load_profile(filename)
+            if profile and profile.name == name:
+
+                try:
+                    profile_path = self.main_config.profiles_dir / filename
+                    if profile_path.exists():
+                        profile_path.unlink()
+                        print(f"Deleted profile file: {filename}")
+                except Exception as e:
+                    print(f"Error deleting profile file: {e}")
+                break
+
+    def create_profile_from_remote(self, remote_data):
+        """Create a profile from remote button data"""
+
+        action_type_map = {
+            "single": self.ActionType.SINGLE,
+            "combo": self.ActionType.COMBO,
+            "sequence": self.ActionType.SEQUENCE,
+            "special": self.ActionType.SPECIAL,
+        }
+
+        mappings = {}
+        for button_name, button_data in remote_data.get("buttons", {}).items():
+            action_type = action_type_map.get(
+                button_data.get("action_type", "single"), self.ActionType.SINGLE
+            )
+            keys = button_data.get("keys", "")
+            description = button_data.get("description", button_name)
+
+            ir_code = button_data.get("code", button_name)
+            mappings[ir_code] = self.KeyMapping(action_type, keys, description)
+
+        profile = self.RemoteProfile(
+            name=remote_data.get("name", "Unnamed Remote"),
+            brand=remote_data.get("brand", "Unknown"),
+            model=remote_data.get("model", "Unknown"),
+            description=remote_data.get("notes", ""),
+            mappings=mappings,
+        )
+
+        return profile
 
     def get_system_config(self):
-        return self.config.get("system", self.default_config["system"])
+        """Get system configuration"""
+        return self.gui_config
 
     def update_system_config(self, updates):
-        if "system" not in self.config:
-            self.config["system"] = {}
-        self.config["system"].update(updates)
-        self.save_config()
+        """Update system configuration"""
+        self.gui_config.update(updates)
+        self.save_gui_config()
+
+        main_settings = {}
+        if "arduino_port" in updates:
+            main_settings["serial_port"] = updates["arduino_port"]
+        if "baud_rate" in updates:
+            main_settings["baud_rate"] = updates["baud_rate"]
+
+        if main_settings:
+            for key, value in main_settings.items():
+                self.main_config.set_setting(key, value)
 
 
 class RemoteConfigWidget(QWidget):
     """Widget for configuring individual remotes"""
 
-    def __init__(self, config_manager):
+    def __init__(self, config_manager, serial_monitor=None):
         super().__init__()
         self.config_manager = config_manager
+        self.serial_monitor = serial_monitor
         self.current_remote = None
         self.learning_mode = False
         self.setup_ui()
+        self.refresh_remotes()
+        remotes = self.config_manager.get_remotes()
+        print(
+            f"RemoteConfigWidget initialized with {len(remotes)} remotes: {list(remotes.keys())}"
+        )
 
     def setup_ui(self):
         layout = QVBoxLayout()
@@ -204,17 +345,19 @@ class RemoteConfigWidget(QWidget):
         remote_layout = QHBoxLayout()
 
         self.remote_combo = QComboBox()
-        self.refresh_remotes()
+        self.remote_combo.setMinimumWidth(200)
 
         self.new_remote_btn = QPushButton("New Remote")
         self.delete_remote_btn = QPushButton("Delete Remote")
         self.save_remote_btn = QPushButton("Save Remote")
+        self.export_profile_btn = QPushButton("Export Profile")
 
         remote_layout.addWidget(QLabel("Remote:"))
         remote_layout.addWidget(self.remote_combo)
         remote_layout.addWidget(self.new_remote_btn)
         remote_layout.addWidget(self.delete_remote_btn)
         remote_layout.addWidget(self.save_remote_btn)
+        remote_layout.addWidget(self.export_profile_btn)
         remote_group.setLayout(remote_layout)
 
         details_group = QGroupBox("Remote Details")
@@ -235,6 +378,20 @@ class RemoteConfigWidget(QWidget):
         buttons_group = QGroupBox("Button Configuration")
         buttons_layout = QVBoxLayout()
 
+        instructions = QLabel(
+            "Instructions:\n"
+            "1. Connect Arduino and start serial monitor in System Config\n"
+            "2. Click 'Start Learning Mode' and enter a button name\n"
+            "3. Press the button on your remote control\n"
+            "4. Configure the action type and keys in the table\n"
+            "5. Save the remote (profile is created automatically)"
+        )
+        instructions.setStyleSheet(
+            "QLabel { background-color: #f0f0f0; padding: 8px; border-radius: 4px; "
+            "font-size: 11px; color: #333; }"
+        )
+        buttons_layout.addWidget(instructions)
+
         learn_layout = QHBoxLayout()
         self.learn_btn = QPushButton("Start Learning Mode")
         self.stop_learn_btn = QPushButton("Stop Learning")
@@ -245,11 +402,17 @@ class RemoteConfigWidget(QWidget):
         learn_layout.addStretch()
 
         self.buttons_table = QTableWidget()
-        self.buttons_table.setColumnCount(4)
+        self.buttons_table.setColumnCount(6)
         self.buttons_table.setHorizontalHeaderLabels(
-            ["Button Name", "IR Code", "Protocol", "Actions"]
+            ["Button Name", "IR Code", "Protocol", "Action Type", "Keys", "Actions"]
         )
         self.buttons_table.horizontalHeader().setStretchLastSection(True)
+
+        self.buttons_table.setColumnWidth(0, 120)
+        self.buttons_table.setColumnWidth(1, 80)
+        self.buttons_table.setColumnWidth(2, 80)
+        self.buttons_table.setColumnWidth(3, 100)
+        self.buttons_table.setColumnWidth(4, 150)
 
         buttons_layout.addLayout(learn_layout)
         buttons_layout.addWidget(self.buttons_table)
@@ -264,18 +427,51 @@ class RemoteConfigWidget(QWidget):
         self.new_remote_btn.clicked.connect(self.new_remote)
         self.delete_remote_btn.clicked.connect(self.delete_remote)
         self.save_remote_btn.clicked.connect(self.save_remote)
+        self.export_profile_btn.clicked.connect(self.export_profile)
         self.remote_combo.currentTextChanged.connect(self.load_remote)
         self.learn_btn.clicked.connect(self.start_learning)
         self.stop_learn_btn.clicked.connect(self.stop_learning)
 
     def refresh_remotes(self):
+        """Refresh the remote combo box with all available remotes"""
+        current_text = self.remote_combo.currentText()
         self.remote_combo.clear()
+
         remotes = self.config_manager.get_remotes()
-        self.remote_combo.addItems(list(remotes.keys()))
+        remote_names = list(remotes.keys())
+
+        print(f"Available remotes: {remote_names}")
+
+        if remote_names:
+            self.remote_combo.addItems(remote_names)
+
+            if current_text and current_text in remote_names:
+                index = self.remote_combo.findText(current_text)
+                if index >= 0:
+                    self.remote_combo.setCurrentIndex(index)
 
     def new_remote(self):
+        """Create a new remote"""
         name, ok = QInputDialog.getText(self, "New Remote", "Enter remote name:")
-        if ok and name:
+        if ok and name.strip():
+            name = name.strip()
+
+            existing_remotes = self.config_manager.get_remotes()
+            if name in existing_remotes:
+                reply = QMessageBox.question(
+                    self,
+                    "Remote Exists",
+                    f"Remote '{name}' already exists. Do you want to edit it?",
+                    QMessageBox.Yes | QMessageBox.No,
+                )
+                if reply == QMessageBox.No:
+                    return
+
+                index = self.remote_combo.findText(name)
+                if index >= 0:
+                    self.remote_combo.setCurrentIndex(index)
+                return
+
             self.current_remote = {
                 "name": name,
                 "brand": "",
@@ -284,44 +480,83 @@ class RemoteConfigWidget(QWidget):
                 "buttons": {},
                 "created": datetime.now().isoformat(),
             }
-            self.remote_combo.addItem(name)
-            self.remote_combo.setCurrentText(name)
+
             self.load_remote_data()
 
-    def delete_remote(self):
-        current_name = self.remote_combo.currentText()
-        if current_name:
-            reply = QMessageBox.question(
-                self, "Delete Remote", f"Delete remote '{current_name}'?"
-            )
-            if reply == QMessageBox.Yes:
-                self.config_manager.delete_remote(current_name)
-                self.refresh_remotes()
+            self.remote_name_edit.setFocus()
+            print(f"Created new remote: {name}")
 
     def save_remote(self):
-        if self.current_remote:
-            name = self.remote_name_edit.text()
-            if name:
-                self.current_remote.update(
-                    {
-                        "name": name,
-                        "brand": self.remote_brand_edit.text(),
-                        "model": self.remote_model_edit.text(),
-                        "notes": self.remote_notes_edit.toPlainText(),
-                        "modified": datetime.now().isoformat(),
-                    }
-                )
-                self.config_manager.add_remote(name, self.current_remote)
-                self.refresh_remotes()
-                QMessageBox.information(self, "Success", "Remote saved successfully!")
+        """Save the current remote"""
+        if not self.current_remote:
+            QMessageBox.warning(self, "Warning", "No remote data to save!")
+            return
+
+        name = self.remote_name_edit.text().strip()
+        if not name:
+            QMessageBox.warning(self, "Warning", "Please enter a remote name!")
+            return
+
+        self.current_remote.update(
+            {
+                "name": name,
+                "brand": self.remote_brand_edit.text().strip(),
+                "model": self.remote_model_edit.text().strip(),
+                "notes": self.remote_notes_edit.toPlainText(),
+                "modified": datetime.now().isoformat(),
+            }
+        )
+
+        print(f"Saving remote '{name}' with data: {self.current_remote}")
+
+        success = self.config_manager.add_remote(name, self.current_remote)
+
+        if success:
+
+            self.refresh_remotes()
+
+            index = self.remote_combo.findText(name)
+            if index >= 0:
+                self.remote_combo.setCurrentIndex(index)
+
+            QMessageBox.information(
+                self,
+                "Success",
+                f"Remote '{name}' saved successfully!\nProfile automatically created for main application.",
+            )
+        else:
+            QMessageBox.warning(
+                self,
+                "Error",
+                f"Failed to save remote '{name}'. Check the console for error details.",
+            )
 
     def load_remote(self, name):
-        if name:
-            remotes = self.config_manager.get_remotes()
-            self.current_remote = remotes.get(name, {})
+        """Load a remote by name"""
+        print(f"Loading remote: '{name}'")
+
+        if not name:
+            self.current_remote = None
+            self.clear_remote_data()
+            return
+
+        remotes = self.config_manager.get_remotes()
+        print(f"Available remotes for loading: {list(remotes.keys())}")
+
+        if name in remotes:
+
+            import copy
+
+            self.current_remote = copy.deepcopy(remotes[name])
             self.load_remote_data()
+            print(f"Successfully loaded remote: {name}")
+        else:
+            print(f"Remote '{name}' not found in available remotes")
+            self.current_remote = None
+            self.clear_remote_data()
 
     def load_remote_data(self):
+        """Load the current remote data into the form fields"""
         if self.current_remote:
             self.remote_name_edit.setText(self.current_remote.get("name", ""))
             self.remote_brand_edit.setText(self.current_remote.get("brand", ""))
@@ -329,40 +564,184 @@ class RemoteConfigWidget(QWidget):
             self.remote_notes_edit.setPlainText(self.current_remote.get("notes", ""))
 
             self.load_buttons_table()
+            print(
+                f"Loaded remote data for: {self.current_remote.get('name', 'Unknown')}"
+            )
+        else:
+            self.clear_remote_data()
+            print("No remote data to load - cleared form")
+
+    def clear_remote_data(self):
+        """Clear all remote data fields"""
+        self.remote_name_edit.clear()
+        self.remote_brand_edit.clear()
+        self.remote_model_edit.clear()
+        self.remote_notes_edit.clear()
+        self.buttons_table.setRowCount(0)
+
+    def delete_remote(self):
+        """Delete the currently selected remote"""
+        current_name = self.remote_combo.currentText()
+        if not current_name:
+            QMessageBox.warning(self, "Warning", "No remote selected to delete!")
+            return
+
+        reply = QMessageBox.question(
+            self,
+            "Delete Remote",
+            f"Are you sure you want to delete remote '{current_name}'?\n\n"
+            f"This will also delete the corresponding profile file.",
+            QMessageBox.Yes | QMessageBox.No,
+        )
+
+        if reply == QMessageBox.Yes:
+
+            self.config_manager.delete_remote(current_name)
+
+            self.current_remote = None
+            self.clear_remote_data()
+
+            self.refresh_remotes()
+
+            QMessageBox.information(
+                self,
+                "Success",
+                f"Remote '{current_name}' and its profile have been deleted.",
+            )
 
     def load_buttons_table(self):
+        """Load buttons into the table with proper widgets"""
         buttons = self.current_remote.get("buttons", {})
         self.buttons_table.setRowCount(len(buttons))
 
         for row, (button_name, button_data) in enumerate(buttons.items()):
+
             self.buttons_table.setItem(row, 0, QTableWidgetItem(button_name))
+
             self.buttons_table.setItem(
                 row, 1, QTableWidgetItem(button_data.get("code", ""))
             )
+
             self.buttons_table.setItem(
                 row, 2, QTableWidgetItem(button_data.get("protocol", ""))
             )
 
+            action_combo = QComboBox()
+            action_combo.addItems(["single", "combo", "sequence", "special"])
+            action_combo.setCurrentText(button_data.get("action_type", "single"))
+
+            action_combo.currentTextChanged.connect(
+                lambda text, name=button_name: self.update_button_action_type(
+                    name, text
+                )
+            )
+            self.buttons_table.setCellWidget(row, 3, action_combo)
+
+            keys_edit = QLineEdit()
+            keys_value = button_data.get("keys", "")
+            if isinstance(keys_value, list):
+                keys_edit.setText(", ".join(str(k) for k in keys_value))
+            else:
+                keys_edit.setText(str(keys_value))
+
+            keys_edit.textChanged.connect(
+                lambda text, name=button_name: self.update_button_keys(name, text)
+            )
+            self.buttons_table.setCellWidget(row, 4, keys_edit)
+
             delete_btn = QPushButton("Delete")
+            delete_btn.setMaximumWidth(60)
+
             delete_btn.clicked.connect(
                 lambda checked, name=button_name: self.delete_button(name)
             )
-            self.buttons_table.setCellWidget(row, 3, delete_btn)
+            self.buttons_table.setCellWidget(row, 5, delete_btn)
+
+    def update_button_action_type(self, button_name, action_type):
+        """Update button action type"""
+        if self.current_remote and "buttons" in self.current_remote:
+            if button_name in self.current_remote["buttons"]:
+                self.current_remote["buttons"][button_name]["action_type"] = action_type
+                print(f"Updated {button_name} action type to {action_type}")
+
+    def update_button_keys(self, button_name, keys_text):
+        """Update button keys"""
+        if self.current_remote and "buttons" in self.current_remote:
+            if button_name in self.current_remote["buttons"]:
+
+                if "," in keys_text:
+                    keys = [k.strip() for k in keys_text.split(",") if k.strip()]
+                else:
+                    keys = keys_text.strip()
+                self.current_remote["buttons"][button_name]["keys"] = keys
+                print(f"Updated {button_name} keys to {keys}")
 
     def start_learning(self):
+        """Start learning mode for a new button"""
+
+        if not (
+            self.serial_monitor
+            and self.serial_monitor.serial_port
+            and self.serial_monitor.serial_port.is_open
+        ):
+            QMessageBox.warning(
+                self,
+                "Arduino Not Connected",
+                "Please connect to Arduino in System Config first!\n\n"
+                "Steps:\n"
+                "1. Go to System Config tab\n"
+                "2. Select your Arduino port\n"
+                "3. Click Connect\n"
+                "4. Verify you see serial output",
+            )
+            return
+
+        if not self.current_remote:
+            QMessageBox.warning(
+                self, "No Remote", "Please create or select a remote first!"
+            )
+            return
+
         button_name, ok = QInputDialog.getText(
             self, "Learn Button", "Enter button name:"
         )
-        if ok and button_name:
+        if ok and button_name.strip():
+            button_name = button_name.strip()
+
+            if button_name in self.current_remote.get("buttons", {}):
+                reply = QMessageBox.question(
+                    self,
+                    "Button Exists",
+                    f"Button '{button_name}' already exists. Replace it?",
+                    QMessageBox.Yes | QMessageBox.No,
+                )
+                if reply == QMessageBox.No:
+                    return
+
             self.learning_mode = True
             self.learning_button_name = button_name
             self.learn_btn.setEnabled(False)
             self.stop_learn_btn.setEnabled(True)
             self.learn_btn.setText(
-                f"Learning '{button_name}'... Press the button on remote"
+                f"Learning '{button_name}'... Press button on remote now!"
             )
 
+            learning_msg = QMessageBox(self)
+            learning_msg.setWindowTitle("Learning Mode Active")
+            learning_msg.setText(f"Learning button: {button_name}")
+            learning_msg.setInformativeText(
+                "1. Point your remote at the Arduino IR receiver\n"
+                "2. Press the button you want to learn\n"
+                "3. Wait for confirmation\n\n"
+                "Click 'Stop Learning' to cancel."
+            )
+            learning_msg.setStandardButtons(QMessageBox.Cancel)
+            learning_msg.show()
+
+            self.learning_dialog = learning_msg
+
     def stop_learning(self):
+        """Stop learning mode"""
         self.learning_mode = False
         self.learn_btn.setEnabled(True)
         self.stop_learn_btn.setEnabled(False)
@@ -371,30 +750,106 @@ class RemoteConfigWidget(QWidget):
     def process_ir_code(self, ir_code, protocol):
         """Called when IR code is received during learning mode"""
         if self.learning_mode and hasattr(self, "learning_button_name"):
+            if not self.current_remote:
+                QMessageBox.warning(self, "Error", "No remote selected!")
+                self.stop_learning()
+                return
+
             if "buttons" not in self.current_remote:
                 self.current_remote["buttons"] = {}
 
             self.current_remote["buttons"][self.learning_button_name] = {
                 "code": ir_code,
                 "protocol": protocol,
+                "action_type": "single",
+                "keys": "space",
+                "description": f"Button {self.learning_button_name}",
                 "learned": datetime.now().isoformat(),
             }
 
             self.load_buttons_table()
             self.stop_learning()
+
             QMessageBox.information(
                 self,
-                "Success",
-                f"Button '{self.learning_button_name}' learned successfully!",
+                "Button Learned Successfully",
+                f"Button '{self.learning_button_name}' learned successfully!\n\n"
+                f"IR Code: {ir_code}\n"
+                f"Protocol: {protocol}\n\n"
+                f"You can now configure the key action by editing the button in the table.\n"
+                f"Don't forget to save the remote when you're done!",
             )
 
     def delete_button(self, button_name):
+        """Delete a button from the current remote"""
         if (
-            "buttons" in self.current_remote
+            self.current_remote
+            and "buttons" in self.current_remote
             and button_name in self.current_remote["buttons"]
         ):
-            del self.current_remote["buttons"][button_name]
-            self.load_buttons_table()
+            reply = QMessageBox.question(
+                self,
+                "Delete Button",
+                f"Delete button '{button_name}'?",
+                QMessageBox.Yes | QMessageBox.No,
+            )
+
+            if reply == QMessageBox.Yes:
+                del self.current_remote["buttons"][button_name]
+                self.load_buttons_table()
+                print(f"Deleted button: {button_name}")
+
+    def export_profile(self):
+        """Export the current remote as a profile (shows status since it's automatic on save)"""
+        current_name = self.remote_combo.currentText()
+        if not current_name:
+            QMessageBox.warning(self, "Warning", "No remote selected!")
+            return
+
+        profile_files = self.config_manager.get_profiles()
+        profile_found = False
+        profile_filename = ""
+
+        for filename in profile_files:
+            profile = self.config_manager.load_profile(filename)
+            if profile and profile.name == current_name:
+                profile_found = True
+                profile_filename = filename
+                break
+
+        if profile_found:
+            QMessageBox.information(
+                self,
+                "Profile Available",
+                f"Profile for '{current_name}' is available!\n\n"
+                f"Profile file: {profile_filename}\n"
+                f"Location: {self.config_manager.main_config.profiles_dir}\n\n"
+                f"The profile is automatically created when you save the remote.\n"
+                f"You can now use this profile in the main application.",
+            )
+        else:
+            QMessageBox.warning(
+                self,
+                "No Profile Found",
+                f"No profile found for '{current_name}'.\n\n"
+                f"Make sure you've saved the remote first.\n"
+                f"Profiles are automatically created when you save a remote.",
+            )
+
+    def validate_remote_data(self):
+        """Validate that current remote has required data"""
+        if not self.current_remote:
+            return False, "No remote data"
+
+        name = self.remote_name_edit.text().strip()
+        if not name:
+            return False, "Remote name is required"
+
+        buttons = self.current_remote.get("buttons", {})
+        if not buttons:
+            return False, "Remote has no buttons configured"
+
+        return True, "Valid"
 
 
 class SystemConfigWidget(QWidget):
@@ -530,17 +985,18 @@ class SystemConfigWidget(QWidget):
                     break
 
     def save_system_config(self):
+        port_text = self.port_combo.currentText()
+        arduino_port = port_text.split(" - ")[0] if port_text else ""
+
         config = {
             "auto_connect": self.auto_connect_cb.isChecked(),
             "debug_mode": self.debug_mode_cb.isChecked(),
-            "arduino_port": (
-                self.port_combo.currentText().split(" - ")[0]
-                if self.port_combo.currentText()
-                else ""
-            ),
+            "arduino_port": arduino_port,
             "baud_rate": int(self.baud_combo.currentText()),
         }
         self.config_manager.update_system_config(config)
+
+        print(f"System config saved: {config}")
 
 
 class ProfileWidget(QWidget):
@@ -602,8 +1058,11 @@ class IRRemoteGUI(QMainWindow):
 
     def __init__(self):
         super().__init__()
-        self.config_manager = ConfigManager()
+        self.config_manager = GUIConfigManager()
         self.serial_monitor = SerialMonitor()
+
+        self.ir_data_buffer = ""
+        self.collecting_ir_data = False
 
         self.setup_ui()
         self.setup_connections()
@@ -628,7 +1087,9 @@ class IRRemoteGUI(QMainWindow):
         )
         self.tabs.addTab(self.system_widget, "System Config")
 
-        self.remote_widget = RemoteConfigWidget(self.config_manager)
+        self.remote_widget = RemoteConfigWidget(
+            self.config_manager, self.serial_monitor
+        )
         self.tabs.addTab(self.remote_widget, "Remote Config")
 
         self.profile_widget = ProfileWidget(self.config_manager)
@@ -672,50 +1133,45 @@ class IRRemoteGUI(QMainWindow):
         self.serial_monitor.connection_status.connect(self.update_connection_status)
 
     def process_serial_data(self, data):
-
+        """Process incoming serial data and handle IR code detection"""
         self.system_widget.append_serial_data(data)
 
-        if "Protocol:" in data and "Raw Value:" in data:
+        if data.startswith("IR_DATA|"):
             try:
+                parts = data.split("|")
+                protocol = ""
+                raw_value = ""
 
-                lines = data.split("\n") if "\n" in data else [data]
-                for line in lines:
-                    if "Raw Value:" in line and "Protocol:" in line:
-                        parts = line.split()
-                        protocol_idx = -1
-                        raw_idx = -1
+                for part in parts:
+                    if part.startswith("Protocol:"):
+                        protocol = part.split(":", 1)[1]
+                    elif part.startswith("Raw:"):
+                        raw_value = part.split(":", 1)[1]
 
-                        for i, part in enumerate(parts):
-                            if part == "Protocol:":
-                                protocol_idx = i + 1
-                            elif part == "Value:" and i > 0 and parts[i - 1] == "Raw":
-                                raw_idx = i + 1
+                if raw_value and protocol:
+                    print(f"Parsed IR: {protocol} - {raw_value}")
+                    self.remote_widget.process_ir_code(raw_value, protocol)
 
-                        if protocol_idx < len(parts) and raw_idx < len(parts):
-                            protocol = parts[protocol_idx]
-                            ir_code = parts[raw_idx]
-                            self.remote_widget.process_ir_code(ir_code, protocol)
-            except (ValueError, IndexError):
-                pass
-
-        elif "RAW:" in data and "Protocol:" in data:
-            try:
-                parts = data.split()
-                protocol_idx = parts.index("Protocol:") + 1
-                raw_idx = parts.index("RAW:") + 1
-
-                if protocol_idx < len(parts) and raw_idx < len(parts):
-                    protocol = parts[protocol_idx]
-                    ir_code = parts[raw_idx]
-                    self.remote_widget.process_ir_code(ir_code, protocol)
-            except (ValueError, IndexError):
-                pass
+            except Exception as e:
+                print(f"Error parsing IR data: {e}")
 
     def update_connection_status(self, connected, message):
+        """Handle connection status updates and UI state"""
         if connected:
             self.status_bar.showMessage(f"Connected: {message}")
+            self.status_bar.setStyleSheet("QStatusBar { color: green; }")
+
+            if hasattr(self.remote_widget, "learn_btn"):
+                self.remote_widget.learn_btn.setEnabled(True)
+
         else:
             self.status_bar.showMessage(f"Disconnected: {message}")
+            self.status_bar.setStyleSheet("QStatusBar { color: red; }")
+
+            if hasattr(self.remote_widget, "learn_btn"):
+                if self.remote_widget.learning_mode:
+                    self.remote_widget.stop_learning()
+                self.remote_widget.learn_btn.setEnabled(False)
 
     def auto_connect(self):
 

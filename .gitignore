@@ -97,11 +97,14 @@ ir_codes.py
 /old_src
 /scripts/*
 /docs
-/config
+# /config
 makefile
 /tests
 pyproject.toml
 .pre-commit-config.yml
 /.github
+/src/launcher.py
 setup.py
+deploy.py
+pytest.ini
 VERSION

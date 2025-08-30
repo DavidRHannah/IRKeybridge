@@ -72,38 +72,34 @@ void processIRSignal() {
     return;
   }
 
-  
-  String protocolName = getProtocolName(data.protocol);
-
-  Serial.println(F("--- Valid IR Signal Detected ---"));
-  Serial.print(F("Protocol: "));
-  Serial.println(protocolName);
-  Serial.print(F("Raw Value: 0x"));
-  Serial.println(data.decodedRawData, HEX);
-  Serial.print(F("Bits: "));
-  Serial.println(data.numberOfBits);
-
-  if (data.protocol != UNKNOWN) {
-    uint16_t command = data.command;
-    uint16_t address = data.address;
-
-    Serial.print(F("Command: 0x"));
-    if (command < 0x10) Serial.print(F("0"));
-    Serial.println(command, HEX);
-
-    Serial.print(F("Address: 0x"));
-    if (address < 0x10) Serial.print(F("0"));
-    Serial.println(address, HEX);
-  }
-
-  Serial.println(F("--------------------------------"));
-
+  printIRDataSingleLine(data);
   
   lastValidCode = data.decodedRawData;
   lastValidProtocol = data.protocol;
   lastValidCodeTime = currentTime;
 
   digitalWrite(DEBUG_LED, LOW);
+}
+
+void printIRDataSingleLine(const IRData &data) {
+  // Format: IR_DATA|Protocol:VALUE|Raw:0xHEXVALUE|Bits:COUNT|Command:0xCMD|Address:0xADDR
+  Serial.print(F("IR_DATA|Protocol:"));
+  Serial.print(getProtocolName(data.protocol));
+  Serial.print(F("|Raw:0x"));
+  Serial.print(data.decodedRawData, HEX);
+  Serial.print(F("|Bits:"));
+  Serial.print(data.numberOfBits);
+  
+  if (data.protocol != UNKNOWN) {
+    Serial.print(F("|Command:0x"));
+    if (data.command < 0x10) Serial.print(F("0"));
+    Serial.print(data.command, HEX);
+    Serial.print(F("|Address:0x"));
+    if (data.address < 0x10) Serial.print(F("0"));
+    Serial.print(data.address, HEX);
+  }
+  
+  Serial.println(); 
 }
 
 bool isValidIRSignal(const IRData &data) {
@@ -186,6 +182,12 @@ void handleSerialCommands() {
       Serial.println(F("  TEST   - Test serial communication"));
       Serial.println(F("  RESET  - Reset IR receiver"));
       Serial.println(F("  HELP   - Show this help"));
+    }
+    else if (command == "DEBUG_ON") {
+      Serial.println(F("Debug mode enabled - will show detailed IR output"));
+    }
+    else if (command == "DEBUG_OFF") {
+      Serial.println(F("Debug mode disabled - single line output only"));
     }
   }
 }

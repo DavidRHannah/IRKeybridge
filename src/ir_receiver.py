@@ -32,7 +32,7 @@ class IRReceiver:
         error_callback (Optional[Callable]): Callback for error reporting
     """
 
-    def __init__(self, port: str, baud_rate: int = 9600, timeout: float = 0.1):
+    def __init__(self, port: str = "COM4", baud_rate: int = 9600, timeout: float = 0.1):
         """
         Initialize the IR receiver.
 

@@ -6,22 +6,59 @@ import sys
 import os
 from pathlib import Path
 
-src_dir = Path(__file__).parent / "src"
-if src_dir.exists():
-    sys.path.insert(0, str(src_dir))
 
-try:
-    from gui import main
+def main():
+    """Launch the GUI application with proper error handling"""
 
+    # Add src directory to path
+    src_dir = Path(__file__).parent
+    if str(src_dir) not in sys.path:
+        sys.path.insert(0, str(src_dir))
+
+    try:
+        # Check for PyQt5 availability
+        try:
+            import PyQt5
+        except ImportError:
+            print("Error: PyQt5 not installed")
+            print("\nTo install PyQt5:")
+            print("  pip install PyQt5")
+            print("\nOr install all dependencies:")
+            print("  pip install -r requirements.txt")
+            sys.exit(1)
+
+        # Check for other dependencies
+        try:
+            import serial
+        except ImportError:
+            print("Error: pyserial not installed")
+            print("\nTo install dependencies:")
+            print("  pip install pyserial keyboard")
+            print("\nOr install all dependencies:")
+            print("  pip install -r requirements.txt")
+            sys.exit(1)
+
+        # Import and run GUI
+        print("Starting IR Remote Configuration Tool...")
+        from gui import main as gui_main
+
+        gui_main()
+
+    except ImportError as e:
+        print(f"Error: Required modules not found")
+        print(f"Details: {e}")
+        print("\nPlease install dependencies:")
+        print("  pip install PyQt5 pyserial keyboard")
+        print("\nOr run the complete setup:")
+        print("  python run_app.py --install-deps")
+        sys.exit(1)
+    except Exception as e:
+        print(f"Error starting application: {e}")
+        import traceback
+
+        traceback.print_exc()
+        sys.exit(1)
+
+
+if __name__ == "__main__":
     main()
-except ImportError as e:
-    print("Error: Required modules not found")
-    print(f"Details: {e}")
-    print("\nPlease install dependencies:")
-    print("  pip install PyQt5 pyserial")
-    print("\nOr run the setup script:")
-    print("  python setup.py")
-    sys.exit(1)
-except Exception as e:
-    print(f"Error starting application: {e}")
-    sys.exit(1)

@@ -1,0 +1,239 @@
+{
+  "name": "Default Vizio Remote",
+  "brand": "Vizio",
+  "model": "Generic TV Remote",
+  "description": "Default configuration for Vizio TV remote",
+  "mappings": {
+    "0x8": {
+      "action_type": "combo",
+      "keys": [
+        "ctrl",
+        "a"
+      ],
+      "description": "Power button"
+    },
+    "0x2F": {
+      "action_type": "combo",
+      "keys": [
+        "ctrl",
+        "a"
+      ],
+      "description": "Input button"
+    },
+    "0xEA": {
+      "action_type": "sequence",
+      "keys": [
+        "windows",
+        "a"
+      ],
+      "description": "Amazon button"
+    },
+    "0xEB": {
+      "action_type": "single",
+      "keys": [
+        "n"
+      ],
+      "description": "Netflix button"
+    },
+    "0xEE": {
+      "action_type": "combo",
+      "keys": [
+        "i"
+      ],
+      "description": "iHeart button"
+    },
+    "0x35": {
+      "action_type": "combo",
+      "keys": [
+        "ctrl",
+        "backspace"
+      ],
+      "description": "Rewind"
+    },
+    "0x37": {
+      "action_type": "combo",
+      "keys": [
+        "ctrl",
+        "a"
+      ],
+      "description": "Pause"
+    },
+    "0x33": {
+      "action_type": "combo",
+      "keys": [
+        "ctrl",
+        "a"
+      ],
+      "description": "Play"
+    },
+    "0x36": {
+      "action_type": "combo",
+      "keys": [
+        "ctrl",
+        "a"
+      ],
+      "description": "Fast Forward"
+    },
+    "0x30": {
+      "action_type": "special",
+      "keys": "stop",
+      "description": "Stop controller"
+    },
+    "0x45": {
+      "action_type": "combo",
+      "keys": [
+        "ctrl",
+        "up"
+      ],
+      "description": "Up arrow"
+    },
+    "0x46": {
+      "action_type": "combo",
+      "keys": [
+        "ctrl",
+        "down"
+      ],
+      "description": "Down arrow"
+    },
+    "0x47": {
+      "action_type": "combo",
+      "keys": [
+        "ctrl",
+        "left"
+      ],
+      "description": "Left arrow"
+    },
+    "0x48": {
+      "action_type": "combo",
+      "keys": [
+        "ctrl",
+        "right"
+      ],
+      "description": "Right arrow"
+    },
+    "0x44": {
+      "action_type": "special",
+      "keys": [
+        "ctrl",
+        "enter"
+      ],
+      "description": "Select/OK"
+    },
+    "0x2": {
+      "action_type": "single",
+      "keys": [
+        "volume up"
+      ],
+      "description": "Volume Up"
+    },
+    "0x3": {
+      "action_type": "combo",
+      "keys": [
+        "volume down"
+      ],
+      "description": "Volume Down"
+    },
+    "0x2D": {
+      "action_type": "combo",
+      "keys": [
+        "ctrl",
+        "home"
+      ],
+      "description": "Home"
+    },
+    "0x0": {
+      "action_type": "combo",
+      "keys": [
+        "ctrl",
+        "page up"
+      ],
+      "description": "Channel Up"
+    },
+    "0x1": {
+      "action_type": "combo",
+      "keys": [
+        "ctrl",
+        "page down"
+      ],
+      "description": "Channel Down"
+    },
+    "0x9": {
+      "action_type": "combo",
+      "keys": [
+        "ctrl",
+        "f"
+      ],
+      "description": "Mute"
+    },
+    "0x11": {
+      "action_type": "single",
+      "keys": "1",
+      "description": "Number 1"
+    },
+    "0x12": {
+      "action_type": "single",
+      "keys": "2",
+      "description": "Number 2"
+    },
+    "0x13": {
+      "action_type": "single",
+      "keys": "3",
+      "description": "Number 3"
+    },
+    "0x14": {
+      "action_type": "single",
+      "keys": "4",
+      "description": "Number 4"
+    },
+    "0x15": {
+      "action_type": "single",
+      "keys": "5",
+      "description": "Number 5"
+    },
+    "0x16": {
+      "action_type": "single",
+      "keys": "6",
+      "description": "Number 6"
+    },
+    "0x17": {
+      "action_type": "single",
+      "keys": "7",
+      "description": "Number 7"
+    },
+    "0x18": {
+      "action_type": "single",
+      "keys": "8",
+      "description": "Number 8"
+    },
+    "0x19": {
+      "action_type": "single",
+      "keys": "9",
+      "description": "Number 9"
+    },
+    "0x10": {
+      "action_type": "single",
+      "keys": "0",
+      "description": "Number 0"
+    },
+    "0x3A": {
+      "action_type": "single",
+      "keys": "enter",
+      "description": "Enter"
+    },
+    "0x1A": {
+      "action_type": "special",
+      "keys": "toggle_tap",
+      "description": "Toggle single tap mode"
+    },
+    "0xFF": {
+      "action_type": "special",
+      "keys": "toggle_ghost",
+      "description": "Toggle ghost key"
+    },
+    "0x9867FB04": {
+      "action_type": "single",
+      "keys": "space",
+      "description": "Button PIC"
+    }
+  }
+}
