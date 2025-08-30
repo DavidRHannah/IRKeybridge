@@ -1,0 +1,43 @@
+{
+  "name": "Sanyo Remote",
+  "brand": "Sanyo",
+  "model": "NC092",
+  "description": "Blu-Ray Disc Player",
+  "mappings": {
+    "0xBE412287": {
+      "action_type": "single",
+      "keys": "windows",
+      "description": "Button power"
+    },
+    "0x8B742287": {
+      "action_type": "single",
+      "keys": "space",
+      "description": "Button home"
+    },
+    "0x8D722287": {
+      "action_type": "special",
+      "keys": "space",
+      "description": "Button ok"
+    },
+    "0x8A752287": {
+      "action_type": "single",
+      "keys": "space",
+      "description": "Button left"
+    },
+    "0x89762287": {
+      "action_type": "single",
+      "keys": "space",
+      "description": "Button right"
+    },
+    "0x88772287": {
+      "action_type": "single",
+      "keys": "space",
+      "description": "Button up"
+    },
+    "0x87782287": {
+      "action_type": "single",
+      "keys": "space",
+      "description": "Button down"
+    }
+  }
+}

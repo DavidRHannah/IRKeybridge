@@ -38,7 +38,6 @@ Examples:
         """,
     )
 
-    # Main operation modes
     parser.add_argument(
         "--profile", "-p", type=str, help="Profile file to use (e.g., vizio.json)"
     )
@@ -59,7 +58,6 @@ Examples:
         "--status", "-s", action="store_true", help="Show controller status"
     )
 
-    # Configuration options
     parser.add_argument(
         "--port", type=str, help="Serial port (e.g., COM5, /dev/ttyUSB0)"
     )
@@ -80,7 +78,6 @@ Examples:
         "--enable-tap", action="store_true", help="Enable single tap mode"
     )
 
-    # Debugging and verbosity
     parser.add_argument(
         "--verbose", "-v", action="store_true", help="Enable verbose output"
     )
@@ -112,7 +109,6 @@ def list_profiles(config_manager: ConfigManager) -> None:
     for i, profile in enumerate(profiles, 1):
         print(f"  {i}. {profile}")
 
-        # Try to load and show profile details
         try:
             profile_obj = config_manager.load_profile(profile)
             if profile_obj:
@@ -164,7 +160,6 @@ def show_status(controller: IRRemoteController) -> None:
     print(f"  Ghost Key Enabled: {'Yes' if status['ghost_key_enabled'] else 'No'}")
     print(f"  Single Tap Enabled: {'Yes' if status['single_tap_enabled'] else 'No'}")
 
-    # Show configuration
     config = controller.config_manager.get_setting
     print(f"\nConfiguration:")
     print(f"  Serial Port: {config('serial_port', 'Not set')}")
@@ -251,15 +246,12 @@ def main() -> None:
     parser = create_parser()
     args = parser.parse_args()
 
-    # Handle GUI launch first
     if args.gui:
         launch_gui()
         return
 
-    # Create controller
     controller = IRRemoteController()
 
-    # Apply configuration overrides
     if args.port:
         controller.config_manager.set_setting("serial_port", args.port)
 
@@ -269,7 +261,6 @@ def main() -> None:
     if args.ghost_key:
         controller.config_manager.set_setting("ghost_key", args.ghost_key)
 
-    # Handle different operation modes
     if args.list_profiles:
         list_profiles(controller.config_manager)
         return
@@ -282,7 +273,6 @@ def main() -> None:
         show_status(controller)
         return
 
-    # Determine profile to use
     profile_name = None
     if args.profile:
         profile_name = args.profile
@@ -293,7 +283,6 @@ def main() -> None:
         print("No profile selected. Exiting.")
         sys.exit(1)
 
-    # Configure mapper options
     if args.enable_ghost:
         controller.mapper.ghost_key_enabled = True
         print("Ghost key mode enabled")
@@ -302,7 +291,6 @@ def main() -> None:
         controller.mapper.single_tapping_enabled = True
         print("Single tap mode enabled")
 
-    # Start the controller
     print(f"Starting IR Remote Controller with profile: {profile_name}")
 
     if not controller.start(profile_name):

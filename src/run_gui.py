@@ -10,13 +10,11 @@ from pathlib import Path
 def main():
     """Launch the GUI application with proper error handling"""
 
-    # Add src directory to path
     src_dir = Path(__file__).parent
     if str(src_dir) not in sys.path:
         sys.path.insert(0, str(src_dir))
 
     try:
-        # Check for PyQt5 availability
         try:
             import PyQt5
         except ImportError:
@@ -27,7 +25,6 @@ def main():
             print("  pip install -r requirements.txt")
             sys.exit(1)
 
-        # Check for other dependencies
         try:
             import serial
         except ImportError:
@@ -38,9 +35,8 @@ def main():
             print("  pip install -r requirements.txt")
             sys.exit(1)
 
-        # Import and run GUI
         print("Starting IR Remote Configuration Tool...")
-        from gui import main as gui_main
+        from gui_app import main as gui_main
 
         gui_main()
 

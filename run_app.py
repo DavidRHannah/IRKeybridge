@@ -96,7 +96,7 @@ def main():
     if args.gui:
         try:
             import PyQt5
-            from gui import main as gui_main
+            from gui_app import main as gui_main
             print("Launching GUI...")
             gui_main()
         except ImportError:

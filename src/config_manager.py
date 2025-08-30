@@ -137,7 +137,6 @@ class ConfigManager:
             try:
                 with open(self.settings_file, "r") as f:
                     loaded_settings = json.load(f)
-                    # Merge with defaults to handle new settings
                     default_settings.update(loaded_settings)
             except (json.JSONDecodeError, IOError) as e:
                 print(f"Error loading settings: {e}")
