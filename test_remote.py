@@ -7,7 +7,6 @@ import sys
 import os
 from pathlib import Path
 
-# Add src directory to path
 src_dir = Path(__file__).parent / "src"
 sys.path.insert(0, str(src_dir))
 
@@ -19,36 +18,17 @@ def main():
     print("Make sure your Arduino is connected to COM4.")
     print()
     
-    controller = IRRemoteController()
-    
-    profiles = controller.list_available_profiles()
-    print(f"Available profiles: {profiles}")
-    
-    profile_name = "Sanyo_NC092.json"
+    profile_name = "Vizio_Generic_TV_Remote.json"
+    controller = IRRemoteController(port="COM4", profile_path=profile_name)
+
     print(f"Starting with profile: {profile_name}")
     
-    if controller.start(profile_name):
-        print("Controller started successfully!")
-        print("Connected to Arduino on COM4")
-        print("Profile loaded with IR code mappings")
-        print()
-        print("TEST YOUR REMOTE NOW:")
-        print("  - Press any button on your IR remote")
-        print("  - You should see the action being executed")
-        print("  - Press the 'Function/Stop' button to exit")
-        print("  - Or press Ctrl+C to stop")
-        print()
-        
-        try:
-            controller.run()
-        except KeyboardInterrupt:
-            print("\n  Stopped by user")
+    if controller.start():
+        print("Press remote buttons to test...")
+        print("Measuring Time To Execution (TTE)")
+        controller.run()
     else:
         print("Failed to start controller")
-        print("Check:")
-        print("  1. Arduino is connected to COM4")
-        print("  2. Arduino is running the IR receiver firmware")
-        print("  3. No other programs are using COM4")
         
     controller.stop()
     print("Controller stopped.")

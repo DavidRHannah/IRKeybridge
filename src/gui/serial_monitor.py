@@ -20,16 +20,16 @@ class SerialMonitor(QThread):
         super().__init__()
         self.serial_port = None
         self.running = False
-        self.port_name = ""
-        self.baud_rate = 9600
+        self.port_name = "COM4"
+        self.baud_rate = 115200
         self.auto_connect = (True,)
         self.debug_mode = (True,)
         self.timeout = (0.1,)
         self.ghost_key = ("f10",)
-        self.ghost_delay = (0.2,)
-        self.repeat_threshold = 0.2
+        self.ghost_delay = (0.11,)
+        self.repeat_threshold = 0.11
 
-    def connect_arduino(self, port, baud_rate=9600):
+    def connect_arduino(self, port, baud_rate=115200):
         try:
             if self.serial_port and self.serial_port.is_open:
                 self.serial_port.close()

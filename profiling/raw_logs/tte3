@@ -1,0 +1,49 @@
+=== IR Remote Controller Test ===
+This will test your IR remote setup.
+Make sure your Arduino is connected to COM4.
+
+Available profiles: ['Elegoo_Remote.json', 'Sanyo_NC092.json', 'Vizio_Generic_TV_Remote.json']
+Starting with profile: Sanyo_NC092.json
+[13:29:43] Loaded profile: Sanyo Remote
+[13:29:45] Controller started with profile: Sanyo Remote
+[13:29:45] Press any button on remote to test, STOP button to exit
+Controller started successfully!
+Connected to Arduino on COM4
+Profile loaded with IR code mappings
+
+TEST YOUR REMOTE NOW:
+  - Press any button on your IR remote
+  - You should see the action being executed
+  - Press the 'Function/Stop' button to exit
+  - Or press Ctrl+C to stop
+
+[13:29:47] TTE: 0.11062312126159668
+[13:29:47] TTE: 0.007975339889526367
+[13:29:49] TTE: 0.0007634162902832031
+[13:29:50] TTE: 0.0036580562591552734
+[13:29:50] TTE: 0.0003108978271484375
+[13:29:51] TTE: 0.012456893920898438
+[13:29:51] TTE: 0.005076169967651367
+[13:29:51] TTE: 0.012419462203979492
+[13:29:52] TTE: 0.0018720626831054688
+[13:29:52] TTE: 0.00023603439331054688
+[13:29:53] TTE: 0.014840126037597656
+[13:29:53] TTE: 0.014028072357177734
+[13:29:54] TTE: 0.005865335464477539
+[13:29:54] TTE: 0.008206367492675781
+[13:29:54] TTE: 0.01003122329711914
+[13:29:55] TTE: 0.015668869018554688
+[13:29:55] TTE: 0.009065389633178711
+[13:29:56] TTE: 0.012676715850830078
+[13:29:56] TTE: 0.014017820358276367
+[13:29:57] TTE: 0.009313344955444336
+[13:29:57] TTE: 0.008294820785522461
+[13:29:58] TTE: 0.0056192874908447266
+[13:29:59] TTE: 0.005158185958862305
+[13:30:02] TTE: 0.010405778884887695
+[13:30:03] TTE: 0.0027816295623779297
+
+Shutdown signal received...
+[13:30:20] Stopping controller...
+[13:30:20] Controller stopped
+Controller stopped.

@@ -1,0 +1,64 @@
+=== IR Remote Controller Test ===
+This will test your IR remote setup.
+Make sure your Arduino is connected to COM4.
+
+Starting with profile: Vizio_Generic_TV_Remote.json
+[IR Receiver Error] Arduino ready
+Controller started
+Press remote buttons to test...
+Measuring Time To Execution (TTE)
+TTE: 0.087363
+TTE: 0.000220
+TTE: 0.000173
+TTE: 0.000006
+TTE: 0.000006
+TTE: 0.000219
+TTE: 0.000263
+TTE: 0.000211
+TTE: 0.000116
+TTE: 0.000010
+TTE: 0.000222
+TTE: 0.000215
+TTE: 0.000340
+TTE: 0.000241
+TTE: 0.000005
+TTE: 0.000006
+TTE: 0.000006
+TTE: 0.000190
+TTE: 0.000213
+TTE: 0.000232
+TTE: 0.000296
+TTE: 0.000279
+TTE: 0.000229
+TTE: 0.000236
+TTE: 0.000222
+TTE: 0.000005
+TTE: 0.000217
+TTE: 0.000005
+TTE: 0.000253
+TTE: 0.000299
+TTE: 0.000244
+TTE: 0.000391
+TTE: 0.000366
+TTE: 0.000123
+TTE: 0.000005
+TTE: 0.000006
+TTE: 0.000226
+TTE: 0.000005
+TTE: 0.000232
+TTE: 0.000226
+TTE: 0.000345
+TTE: 0.000221
+TTE: 0.000351
+TTE: 0.000347
+TTE: 0.000369
+TTE: 0.000391
+TTE: 0.000366
+TTE: 0.000229
+TTE: 0.000355
+TTE: 0.000237
+TTE: 0.000239
+TTE: 0.000238
+TTE: 0.000388
+Controller stopped
+Controller stopped.

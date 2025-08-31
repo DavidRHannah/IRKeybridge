@@ -1,0 +1,10 @@
+
+=== TTE Profiling Report ===
+count               : 25.000000 seconds
+min                 : 0.000236 seconds
+max                 : 0.110623 seconds
+mean                : 0.012055 seconds
+median              : 0.008295 seconds
+stdev               : 0.021070 seconds
+25th_percentile     : 0.004367 seconds
+75th_percentile     : 0.012567 seconds

@@ -12,7 +12,7 @@
 const int RECV_PIN = 10;           
 const int STATUS_LED = 13;         
 const int DEBUG_LED = 12;          
-const unsigned long BAUD_RATE = 9600;
+const unsigned long BAUD_RATE = 115200;
 
 unsigned long lastValidCodeTime = 0;
 uint32_t lastValidCode = 0;

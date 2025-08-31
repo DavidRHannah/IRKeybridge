@@ -124,12 +124,12 @@ class ConfigManager:
     def _load_settings(self) -> Dict[str, Any]:
         """Load application settings"""
         default_settings = {
-            "serial_port": "COM5",
-            "baud_rate": 9600,
+            "serial_port": "COM4",
+            "baud_rate": 115200,
             "timeout": 0.1,
             "ghost_key": "f10",
-            "ghost_delay": 0.2,
-            "repeat_threshold": 0.2,
+            "ghost_delay": 0.11,
+            "repeat_threshold": 0.11,
             "last_used_profile": None,
         }
 

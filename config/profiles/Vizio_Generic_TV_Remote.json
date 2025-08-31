@@ -4,236 +4,220 @@
   "model": "Generic TV Remote",
   "description": "Default configuration for Vizio TV remote",
   "mappings": {
-    "0x8": {
-      "action_type": "combo",
-      "keys": [
-        "ctrl",
-        "a"
-      ],
-      "description": "Power button"
-    },
-    "0x2F": {
-      "action_type": "combo",
-      "keys": [
-        "ctrl",
-        "a"
-      ],
-      "description": "Input button"
-    },
-    "0xEA": {
-      "action_type": "sequence",
-      "keys": [
-        "windows",
-        "a"
-      ],
-      "description": "Amazon button"
-    },
-    "0xEB": {
+    "0xD02FFB04": {
       "action_type": "single",
-      "keys": [
-        "n"
-      ],
-      "description": "Netflix button"
+      "keys": "windows",
+      "description": "Button input"
     },
-    "0xEE": {
-      "action_type": "combo",
-      "keys": [
-        "i"
-      ],
-      "description": "iHeart button"
-    },
-    "0x35": {
-      "action_type": "combo",
-      "keys": [
-        "ctrl",
-        "backspace"
-      ],
-      "description": "Rewind"
-    },
-    "0x37": {
-      "action_type": "combo",
-      "keys": [
-        "ctrl",
-        "a"
-      ],
-      "description": "Pause"
-    },
-    "0x33": {
-      "action_type": "combo",
-      "keys": [
-        "ctrl",
-        "a"
-      ],
-      "description": "Play"
-    },
-    "0x36": {
-      "action_type": "combo",
-      "keys": [
-        "ctrl",
-        "a"
-      ],
-      "description": "Fast Forward"
-    },
-    "0x30": {
+    "0xF708FB04": {
       "action_type": "special",
       "keys": "stop",
-      "description": "Stop controller"
+      "description": "Button power - STOP CONTROLLER"
     },
-    "0x45": {
-      "action_type": "combo",
-      "keys": [
-        "ctrl",
-        "up"
-      ],
-      "description": "Up arrow"
-    },
-    "0x46": {
-      "action_type": "combo",
-      "keys": [
-        "ctrl",
-        "down"
-      ],
-      "description": "Down arrow"
-    },
-    "0x47": {
-      "action_type": "combo",
-      "keys": [
-        "ctrl",
-        "left"
-      ],
-      "description": "Left arrow"
-    },
-    "0x48": {
-      "action_type": "combo",
-      "keys": [
-        "ctrl",
-        "right"
-      ],
-      "description": "Right arrow"
-    },
-    "0x44": {
-      "action_type": "special",
-      "keys": [
-        "ctrl",
-        "enter"
-      ],
-      "description": "Select/OK"
-    },
-    "0x2": {
-      "action_type": "single",
-      "keys": [
-        "volume up"
-      ],
-      "description": "Volume Up"
-    },
-    "0x3": {
-      "action_type": "combo",
-      "keys": [
-        "volume down"
-      ],
-      "description": "Volume Down"
-    },
-    "0x2D": {
-      "action_type": "combo",
-      "keys": [
-        "ctrl",
-        "home"
-      ],
-      "description": "Home"
-    },
-    "0x0": {
-      "action_type": "combo",
-      "keys": [
-        "ctrl",
-        "page up"
-      ],
-      "description": "Channel Up"
-    },
-    "0x1": {
-      "action_type": "combo",
-      "keys": [
-        "ctrl",
-        "page down"
-      ],
-      "description": "Channel Down"
-    },
-    "0x9": {
-      "action_type": "combo",
-      "keys": [
-        "ctrl",
-        "f"
-      ],
-      "description": "Mute"
-    },
-    "0x11": {
-      "action_type": "single",
-      "keys": "1",
-      "description": "Number 1"
-    },
-    "0x12": {
-      "action_type": "single",
-      "keys": "2",
-      "description": "Number 2"
-    },
-    "0x13": {
-      "action_type": "single",
-      "keys": "3",
-      "description": "Number 3"
-    },
-    "0x14": {
-      "action_type": "single",
-      "keys": "4",
-      "description": "Number 4"
-    },
-    "0x15": {
-      "action_type": "single",
-      "keys": "5",
-      "description": "Number 5"
-    },
-    "0x16": {
-      "action_type": "single",
-      "keys": "6",
-      "description": "Number 6"
-    },
-    "0x17": {
-      "action_type": "single",
-      "keys": "7",
-      "description": "Number 7"
-    },
-    "0x18": {
-      "action_type": "single",
-      "keys": "8",
-      "description": "Number 8"
-    },
-    "0x19": {
-      "action_type": "single",
-      "keys": "9",
-      "description": "Number 9"
-    },
-    "0x10": {
-      "action_type": "single",
-      "keys": "0",
-      "description": "Number 0"
-    },
-    "0x3A": {
-      "action_type": "single",
-      "keys": "enter",
-      "description": "Enter"
-    },
-    "0x1A": {
+    "0x15EAFB04": {
       "action_type": "special",
       "keys": "toggle_tap",
-      "description": "Toggle single tap mode"
+      "description": "Button amazon - TOGGLE TAP"
     },
-    "0xFF": {
+    "0x14EBFB04": {
       "action_type": "special",
       "keys": "toggle_ghost",
-      "description": "Toggle ghost key"
+      "description": "Button netflix - TOGGLE GHOST"
+    },
+    "0x11EEFB04": {
+      "action_type": "single",
+      "keys": "i",
+      "description": "Button iheartradio"
+    },
+    "0xCA35FB04": {
+      "action_type": "single",
+      "keys": "left",
+      "description": "Button rewind"
+    },
+    "0xC837FB04": {
+      "action_type": "single",
+      "keys": "space",
+      "description": "Button pause"
+    },
+    "0xCC33FB04": {
+      "action_type": "single",
+      "keys": "space",
+      "description": "Button play"
+    },
+    "0xC936FB04": {
+      "action_type": "single",
+      "keys": "right",
+      "description": "Button fastforward"
+    },
+    "0xC639FB04": {
+      "action_type": "single",
+      "keys": "c",
+      "description": "Button cc - Closed captions"
+    },
+    "0xCB34FB04": {
+      "action_type": "single",
+      "keys": "r",
+      "description": "Button record"
+    },
+    "0xCF30FB04": {
+      "action_type": "single",
+      "keys": "s",
+      "description": "Button stop media"
+    },
+    "0xB04FFB04": {
+      "action_type": "single",
+      "keys": "m",
+      "description": "Button menu"
+    },
+    "0xBB44FB04": {
+      "action_type": "single",
+      "keys": "enter",
+      "description": "Button select/OK"
+    },
+    "0xB54AFB04": {
+      "action_type": "combo",
+      "keys": ["left", "down"],
+      "description": "Button leftdown diagonal"
+    },
+    "0xB649FB04": {
+      "action_type": "combo",
+      "keys": ["left", "up"],
+      "description": "Button topleft diagonal"
+    },
+    "0xE41BFB04": {
+      "action_type": "combo",
+      "keys": ["right", "up"],
+      "description": "Button topright diagonal"
+    },
+    "0xE31CFB04": {
+      "action_type": "combo",
+      "keys": ["right", "down"],
+      "description": "Button bottomright diagonal"
+    },
+    "0xFD02FB04": {
+      "action_type": "single",
+      "keys": "volume_up",
+      "description": "Button volumeup"
+    },
+    "0xFC03FB04": {
+      "action_type": "single",
+      "keys": "volume_down",
+      "description": "Button volumedown"
+    },
+    "0xD22DFB04": {
+      "action_type": "single",
+      "keys": "home",
+      "description": "Button home"
+    },
+    "0xFF00FB04": {
+      "action_type": "single",
+      "keys": "page up",
+      "description": "Button channelup"
+    },
+    "0xFE01FB04": {
+      "action_type": "single",
+      "keys": "page down",
+      "description": "Button channeldown"
+    },
+    "0xF609FB04": {
+      "action_type": "single",
+      "keys": "volume_mute",
+      "description": "Button mute"
+    },
+    "0x8877FB04": {
+      "action_type": "single",
+      "keys": "d",
+      "description": "Button display"
     },
     "0x9867FB04": {
       "action_type": "single",
+      "keys": "p",
+      "description": "Button pic"
+    },
+    "0xE51AFB04": {
+      "action_type": "single",
+      "keys": "backspace",
+      "description": "Button redo/back"
+    },
+    "0xEE11FB04": {
+      "action_type": "single",
+      "keys": "1",
+      "description": "Button 1"
+    },
+    "0xED12FB04": {
+      "action_type": "single",
+      "keys": "2",
+      "description": "Button 2"
+    },
+    "0xEC13FB04": {
+      "action_type": "single",
+      "keys": "3",
+      "description": "Button 3"
+    },
+    "0xEB14FB04": {
+      "action_type": "single",
+      "keys": "4",
+      "description": "Button 4"
+    },
+    "0xEA15FB04": {
+      "action_type": "single",
+      "keys": "5",
+      "description": "Button 5"
+    },
+    "0xE916FB04": {
+      "action_type": "single",
+      "keys": "6",
+      "description": "Button 6"
+    },
+    "0xE817FB04": {
+      "action_type": "single",
+      "keys": "7",
+      "description": "Button 7"
+    },
+    "0xE718FB04": {
+      "action_type": "single",
+      "keys": "8",
+      "description": "Button 8"
+    },
+    "0xE619FB04": {
+      "action_type": "single",
+      "keys": "9",
+      "description": "Button 9"
+    },
+    "0xC53AFB04": {
+      "action_type": "single",
+      "keys": "enter",
+      "description": "Button enter"
+    },
+    "0xEF10FB04": {
+      "action_type": "single",
+      "keys": "0",
+      "description": "Button 0"
+    },
+    "0xFFFB04": {
+      "action_type": "single",
       "keys": "space",
-      "description": "Button PIC"
+      "description": "Button space"
+    },
+    "0xB847FB04": {
+      "action_type": "single",
+      "keys": "left",
+      "description": "Button left"
+    },
+    "0xB748FB04": {
+      "action_type": "single",
+      "keys": "right",
+      "description": "Button right"
+    },
+    "0xBA45FB04": {
+      "action_type": "single",
+      "keys": "up",
+      "description": "Button up"
+    },
+    "0xB946FB04": {
+      "action_type": "single",
+      "keys": "down",
+      "description": "Button down"
     }
   }
 }

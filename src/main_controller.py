@@ -9,7 +9,7 @@ import time
 import signal
 import sys
 from typing import Optional
-from config_manager import ConfigManager, RemoteProfile
+from config_manager import ActionType, ConfigManager, KeyMapping, RemoteProfile
 from ir_receiver import IRReceiver
 from key_mapper import KeyMapper
 
@@ -32,84 +32,91 @@ class IRRemoteController:
         current_profile (Optional[RemoteProfile]): Currently loaded remote profile
     """
 
-    def __init__(self):
-        """
-        Initialize the IR Remote Controller.
-
-        Sets up the configuration manager, IR receiver, and key mapper with
-        default settings. Also configures signal handlers for graceful shutdown.
-        """
-        self.config_manager = ConfigManager()
-        self.receiver = IRReceiver(
-            port=self.config_manager.get_setting("serial_port", "COM4"),
-            baud_rate=self.config_manager.get_setting("baud_rate", 9600),
-            timeout=self.config_manager.get_setting("timeout", 0.1),
-        )
+    def __init__(self, port="COM4", profile_path=None):
+        self.receiver = IRReceiver(port=port)
+        self.config_manager = ConfigManager("config")
         self.mapper = KeyMapper()
-
         self.running = False
-        self.current_profile: Optional[RemoteProfile] = None
-
-        self.receiver.set_error_callback(self._log_message)
-        self.mapper.set_callbacks(
-            stop_callback=self.stop, status_callback=self._log_message
-        )
-
-        signal.signal(signal.SIGINT, self._signal_handler)
-        signal.signal(signal.SIGTERM, self._signal_handler)
-
-    def _signal_handler(self, signum, frame):
-        """
-        Handle shutdown signals (SIGINT, SIGTERM).
-
-        Args:
-            signum (int): Signal number
-            frame: Current stack frame
-        """
-        print("\nShutdown signal received...")
-        self.stop()
-
-    def _log_message(self, message: str):
-        """
-        Log messages with timestamp.
-
-        Args:
-            message (str): Message to log
-        """
-        timestamp = time.strftime("%H:%M:%S")
-        print(f"[{timestamp}] {message}")
-
-    def load_profile(self, profile_name: str) -> bool:
-        """
-        Load a remote profile by filename.
-
-        Args:
-            profile_name (str): Name of the profile file to load
-
-        Returns:
-            bool: True if profile loaded successfully, False otherwise
-        """
-        profile = self.config_manager.load_profile(profile_name)
-        if profile:
-            self.current_profile = profile
-            self.mapper.set_profile(profile)
-            self.config_manager.set_setting("last_used_profile", profile_name)
-            return True
-        return False
-
-    def create_default_profile(self) -> bool:
-        """
-        Create and save the default Vizio profile.
-
-        Returns:
-            bool: True if profile created successfully, False otherwise
-        """
-        profile = self.config_manager.create_default_vizio_profile()
-        if self.config_manager.save_profile(profile):
-            self._log_message(f"Created default profile: {profile.name}")
-            return True
-        return False
-
+        
+        if profile_path:
+            self.load_profile(profile_path)
+        
+        signal.signal(signal.SIGINT, lambda s, f: self.stop())
+        
+    def load_profile(self, profile_path):
+        """Load and optimize profile."""
+        import json
+        with open(profile_path, 'r') as f:
+            profile_data = json.load(f)
+        
+        optimized_mappings = {}
+        for ir_code, mapping_data in profile_data.get("mappings", {}).items():
+            optimized_mappings[ir_code] = KeyMapping(
+                action_type=ActionType(mapping_data["action_type"]),
+                keys=mapping_data["keys"],
+                description=mapping_data.get("description", "")
+            )
+        
+        self.mapper.set_mappings(optimized_mappings)
+        self.mapper.stop_callback = self.stop
+    
+    def start(self) -> bool:
+        """Start the controller."""
+        if not self.receiver.connect():
+            print("Failed to connect to receiver")
+            return False
+        
+        if not self.receiver.start_receiving():
+            print("Failed to start receiving")
+            return False
+        
+        self.running = True
+        print("Controller started")
+        return True
+    
+    def run(self):
+        """Optimized main loop with minimal overhead."""
+        if not self.running:
+            return
+        
+        last_release_check = time.time()
+        release_interval = 0.5
+        
+        get_code = self.receiver.get_code
+        process_code = self.mapper.process_code
+        release_all = self.mapper._release_all
+        
+        try:
+            while self.running:
+                ir_code = get_code()
+                
+                if ir_code:
+                    start = time.time()  # Uncomment for profiling
+                    process_code(ir_code)
+                    last_release_check = time.time()
+                    print(f"TTE: {time.time() - start:.6f}")  # Uncomment for profiling
+                else:
+                    current = time.time()
+                    if (current - last_release_check) > release_interval:
+                        release_all()
+                        self.mapper.last_code = None
+                        last_release_check = current
+                    else:
+                        time.sleep(0.0001)  # 0.1ms
+                        
+        except KeyboardInterrupt:
+            pass
+        finally:
+            self.stop()
+    
+    def stop(self):
+        """Stop the controller."""
+        if self.running:
+            self.running = False
+            self.mapper._release_all()
+            self.receiver.disconnect()
+            print("Controller stopped")
+            
     def list_available_profiles(self) -> list[str]:
         """
         Get list of available profiles.
@@ -118,138 +125,7 @@ class IRRemoteController:
             list[str]: List of profile filenames
         """
         return self.config_manager.list_profiles()
-
-    def start(self, profile_name: str = None) -> bool:
-        """
-        Start the controller with specified or last used profile.
-
-        Args:
-            profile_name (str, optional): Name of profile to load. If None,
-                uses last used profile or creates default.
-
-        Returns:
-            bool: True if controller started successfully, False otherwise
-        """
-
-        if profile_name:
-            target_profile = profile_name
-        else:
-            target_profile = self.config_manager.get_setting("last_used_profile")
-
-        if target_profile and not self.load_profile(target_profile):
-            self._log_message(f"Failed to load profile: {target_profile}")
-
-        if not self.current_profile:
-            available_profiles = self.list_available_profiles()
-            if not available_profiles:
-                self._log_message("No profiles found, creating default...")
-                self.create_default_profile()
-                available_profiles = self.list_available_profiles()
-
-            if available_profiles:
-                if self.load_profile(available_profiles[0]):
-                    self._log_message(f"Loaded first available profile")
-                else:
-                    self._log_message("Failed to load any profile")
-                    return False
-            else:
-                self._log_message("No profiles available")
-                return False
-
-        if not self.receiver.connect():
-            self._log_message("Failed to connect to IR receiver")
-            return False
-
-        mapper_settings = {
-            "ghost_key": self.config_manager.get_setting("ghost_key", "f10"),
-            "ghost_delay": self.config_manager.get_setting("ghost_delay", 0.2),
-            "repeat_threshold": self.config_manager.get_setting(
-                "repeat_threshold", 0.2
-            ),
-        }
-        self.mapper.configure(**mapper_settings)
-
-        if not self.receiver.start_receiving():
-            self.receiver.disconnect()
-            return False
-
-        self.running = True
-        self._log_message(
-            f"Controller started with profile: {self.current_profile.name}"
-        )
-        self._log_message("Press any button on remote to test, STOP button to exit")
-        return True
-
-    def run(self):
-        """
-        Main control loop.
-
-        Continuously processes IR codes from the receiver and maps them to
-        keyboard actions. Handles key release timing and cleanup on exit.
-        """
-        if not self.running:
-            self._log_message("Controller not started")
-            return
-        
-        try:
-            last_release_time = time.time()
-
-            while self.running:
-                start_time = time.time()
-                
-                ir_code = self.receiver.get_code(timeout=0.01)
-
-                if ir_code:
-                    # self._log_message(f"Received IR code: {ir_code}")
-                    
-                    if self.current_profile and ir_code in self.current_profile.mappings:
-                        mapping = self.current_profile.mappings[ir_code]
-                        # self._log_message(f"Found mapping: {mapping.description} -> {mapping.action_type}:{mapping.keys}")
-                    else:
-                        # self._log_message(f"No mapping found for {ir_code}")
-                        if self.current_profile and self.current_profile.mappings:
-                            available = list(self.current_profile.mappings.keys())[:3]
-                            # self._log_message(f"Sample available codes: {available}")
-                    
-                    self.mapper.process_code(ir_code)
-                    
-                    end_time = time.time()
-                    self._log_message(f"TTE: {end_time - start_time}")
-                else:
-                    current_time = time.time()
-                    if (current_time - last_release_time) > 0.5:
-                        self.mapper._release_all_keys()
-                        self.mapper.last_received_code = None
-                        last_release_time = current_time
-
-                time.sleep(0.01)
-
-        except KeyboardInterrupt:
-            self._log_message("Interrupted by user")
-        except Exception as e:
-            self._log_message(f"Unexpected error: {e}")
-            import traceback
-            self._log_message(f"Traceback: {traceback.format_exc()}")
-        finally:
-            self.stop()
-
-    def stop(self):
-        """
-        Stop the controller.
-
-        Gracefully shuts down the receiver, mapper, and releases all resources.
-        """
-        if self.running:
-            self.running = False
-            self._log_message("Stopping controller...")
-
-            self.receiver.stop_receiving()
-            self.receiver.disconnect()
-
-            self.mapper.cleanup()
-
-            self._log_message("Controller stopped")
-
+    
     def get_status(self) -> dict:
         """
         Get current controller status.
@@ -265,3 +141,32 @@ class IRRemoteController:
             "ghost_key_enabled": self.mapper.ghost_key_enabled,
             "single_tap_enabled": self.mapper.single_tapping_enabled,
         }
+        
+    def load_profile(self, profile_name: str) -> bool:
+        """
+        Load a remote profile by filename.
+
+        Args:
+            profile_name (str): Name of the profile file to load
+
+        Returns:
+            bool: True if profile loaded successfully, False otherwise
+        """
+        profile = self.config_manager.load_profile(profile_name)
+        if profile:
+            self.current_profile = profile
+            self.mapper.set_mappings(profile.mappings)
+            self.config_manager.set_setting("last_used_profile", profile_name)
+            return True
+        return False
+    
+    def _log_message(self, message: str):
+        """
+        Log messages with timestamp.
+
+        Args:
+            message (str): Message to log
+        """
+        timestamp = time.strftime("%H:%M:%S")
+        print(f"[{timestamp}] {message}")
+        
