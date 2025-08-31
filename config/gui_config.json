@@ -1,8 +1,8 @@
 {
   "window_geometry": null,
   "last_tab": 0,
-  "arduino_port": "",
+  "arduino_port": "COM4",
   "baud_rate": 9600,
   "auto_connect": false,
-  "debug_mode": false
+  "debug_mode": true
 }

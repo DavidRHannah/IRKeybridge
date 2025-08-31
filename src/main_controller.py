@@ -41,7 +41,7 @@ class IRRemoteController:
         """
         self.config_manager = ConfigManager()
         self.receiver = IRReceiver(
-            port=self.config_manager.get_setting("serial_port", "COM5"),
+            port=self.config_manager.get_setting("serial_port", "COM4"),
             baud_rate=self.config_manager.get_setting("baud_rate", 9600),
             timeout=self.config_manager.get_setting("timeout", 0.1),
         )
@@ -190,20 +190,31 @@ class IRRemoteController:
         if not self.running:
             self._log_message("Controller not started")
             return
-
+        
         try:
             last_release_time = time.time()
 
             while self.running:
-
                 ir_code = self.receiver.get_code(timeout=0.01)
 
                 if ir_code:
-
+                    # Debug: Show what IR code was received
+                    self._log_message(f"Received IR code: {ir_code}")
+                    
+                    # Debug: Check if code exists in profile
+                    if self.current_profile and ir_code in self.current_profile.mappings:
+                        mapping = self.current_profile.mappings[ir_code]
+                        self._log_message(f"Found mapping: {mapping.description} -> {mapping.action_type}:{mapping.keys}")
+                    else:
+                        self._log_message(f"No mapping found for {ir_code}")
+                        # Show first few available codes for comparison
+                        if self.current_profile and self.current_profile.mappings:
+                            available = list(self.current_profile.mappings.keys())[:3]
+                            self._log_message(f"Sample available codes: {available}")
+                    
                     self.mapper.process_code(ir_code)
                     last_release_time = time.time()
                 else:
-
                     current_time = time.time()
                     if (current_time - last_release_time) > 0.5:
                         self.mapper._release_all_keys()
@@ -216,6 +227,8 @@ class IRRemoteController:
             self._log_message("Interrupted by user")
         except Exception as e:
             self._log_message(f"Unexpected error: {e}")
+            import traceback
+            self._log_message(f"Traceback: {traceback.format_exc()}")
         finally:
             self.stop()
 

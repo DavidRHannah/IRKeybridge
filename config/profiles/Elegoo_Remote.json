@@ -6,8 +6,8 @@
   "mappings": {
     "45": {
       "action_type": "combo",
-      "keys": ["ctrl", "a"],
-      "description": "Power button"
+      "keys": ["win"],
+      "description": "Open Windows Start Menu/Panel"
     },
     "46": {
       "action_type": "combo",
@@ -20,9 +20,9 @@
       "description": "Function/Stop - Stops controller"
     },
     "44": {
-      "action_type": "combo",
-      "keys": ["ctrl", "backspace"],
-      "description": "Rewind"
+      "action_type": "single",
+      "keys": "left",
+      "description": "Left arrow"
     },
     "40": {
       "action_type": "combo",
@@ -30,13 +30,13 @@
       "description": "Pause/Play"
     },
     "43": {
-      "action_type": "combo",
-      "keys": ["ctrl", "f"],
-      "description": "Fast Forward"
+      "action_type": "single",
+      "keys": "right",
+      "description": "Right arrow (was Fast Forward)"
     },
     "7": {
-      "action_type": "combo",
-      "keys": ["ctrl", "down"],
+      "action_type": "single",
+      "keys": "down",
       "description": "Down arrow"
     },
     "15": {
@@ -45,8 +45,8 @@
       "description": "Volume Down"
     },
     "9": {
-      "action_type": "combo",
-      "keys": ["ctrl", "up"],
+      "action_type": "single",
+      "keys": "up",
       "description": "Up arrow"
     },
     "16": {

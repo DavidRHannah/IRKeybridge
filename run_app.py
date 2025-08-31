@@ -92,7 +92,7 @@ def main():
         print(f"Missing required dependency: {e}")
         print("Install dependencies with: python run_app.py --install-deps")
         return 1
-    
+        
     if args.gui:
         try:
             import PyQt5
