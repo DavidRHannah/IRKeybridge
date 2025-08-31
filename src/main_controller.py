@@ -195,25 +195,26 @@ class IRRemoteController:
             last_release_time = time.time()
 
             while self.running:
+                start_time = time.time()
+                
                 ir_code = self.receiver.get_code(timeout=0.01)
 
                 if ir_code:
-                    # Debug: Show what IR code was received
-                    self._log_message(f"Received IR code: {ir_code}")
+                    # self._log_message(f"Received IR code: {ir_code}")
                     
-                    # Debug: Check if code exists in profile
                     if self.current_profile and ir_code in self.current_profile.mappings:
                         mapping = self.current_profile.mappings[ir_code]
-                        self._log_message(f"Found mapping: {mapping.description} -> {mapping.action_type}:{mapping.keys}")
+                        # self._log_message(f"Found mapping: {mapping.description} -> {mapping.action_type}:{mapping.keys}")
                     else:
-                        self._log_message(f"No mapping found for {ir_code}")
-                        # Show first few available codes for comparison
+                        # self._log_message(f"No mapping found for {ir_code}")
                         if self.current_profile and self.current_profile.mappings:
                             available = list(self.current_profile.mappings.keys())[:3]
-                            self._log_message(f"Sample available codes: {available}")
+                            # self._log_message(f"Sample available codes: {available}")
                     
                     self.mapper.process_code(ir_code)
-                    last_release_time = time.time()
+                    
+                    end_time = time.time()
+                    self._log_message(f"TTE: {end_time - start_time}")
                 else:
                     current_time = time.time()
                     if (current_time - last_release_time) > 0.5:

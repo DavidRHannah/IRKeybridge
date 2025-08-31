@@ -1,0 +1,244 @@
+=== IR Remote Controller Test ===
+This will test your IR remote setup.
+Make sure your Arduino is connected to COM4.
+
+Available profiles: ['Elegoo_Remote.json', 'Sanyo_NC092.json', 'Vizio_Generic_TV_Remote.json']
+Starting with profile: Sanyo_NC092.json
+[12:22:29] Loaded profile: Sanyo Remote
+[12:22:31] Controller started with profile: Sanyo Remote
+[12:22:31] Press any button on remote to test, STOP button to exit
+Controller started successfully!
+Connected to Arduino on COM4
+Profile loaded with IR code mappings
+
+TEST YOUR REMOTE NOW:
+  - Press any button on your IR remote
+  - You should see the action being executed
+  - Press the 'Function/Stop' button to exit
+  - Or press Ctrl+C to stop
+
+[12:22:41] Received IR code: 0xBE412287
+[12:22:41] Found mapping: Button power -> ActionType.SINGLE:windows
+[12:22:41] Executing: Button power
+[12:22:41] TTE: 0.12848305702209473
+[12:22:42] Received IR code: 0xBE412287
+[12:22:42] Found mapping: Button power -> ActionType.SINGLE:windows
+[12:22:42] Executing: Button power
+[12:22:42] TTE: 0.01318502426147461
+[12:22:43] Received IR code: 0xBE412287
+[12:22:43] Found mapping: Button power -> ActionType.SINGLE:windows
+[12:22:43] Executing: Button power
+[12:22:43] TTE: 0.00032067298889160156
+[12:22:44] Received IR code: 0xBE412287
+[12:22:44] Found mapping: Button power -> ActionType.SINGLE:windows
+[12:22:44] Executing: Button power
+[12:22:44] TTE: 0.017071962356567383
+[12:22:45] Received IR code: 0xBE412287
+[12:22:45] Found mapping: Button power -> ActionType.SINGLE:windows
+[12:22:45] Executing: Button power
+[12:22:45] TTE: 0.018823623657226562
+[12:22:47] Received IR code: 0x12287
+[12:22:47] No mapping found for 0x12287
+[12:22:47] Sample available codes: ['0xBE412287', '0x8B742287', '0x8D722287']
+[12:22:47] TTE: 0.01886916160583496
+[12:22:50] Received IR code: 0xBE412287
+[12:22:50] Found mapping: Button power -> ActionType.SINGLE:windows
+[12:22:50] Executing: Button power
+[12:22:50] TTE: 0.014074563980102539
+[12:22:53] Received IR code: 0xDBEECB9A
+[12:22:53] No mapping found for 0xDBEECB9A
+[12:22:53] Sample available codes: ['0xBE412287', '0x8B742287', '0x8D722287']
+[12:22:53] TTE: 0.020439863204956055
+[12:22:53] Received IR code: 0xBE412287
+[12:22:53] Found mapping: Button power -> ActionType.SINGLE:windows
+[12:22:53] Executing: Button power
+[12:22:53] TTE: 0.01383209228515625
+[12:22:56] Received IR code: 0x4AB0F7B6
+[12:22:56] No mapping found for 0x4AB0F7B6
+[12:22:56] Sample available codes: ['0xBE412287', '0x8B742287', '0x8D722287']
+[12:22:56] TTE: 0.00016450881958007812
+[12:22:56] Received IR code: 0x2EBC17CA
+[12:22:56] No mapping found for 0x2EBC17CA
+[12:22:56] Sample available codes: ['0xBE412287', '0x8B742287', '0x8D722287']
+[12:22:56] TTE: 0.007032632827758789
+[12:22:57] Received IR code: 0x8D722287
+[12:22:57] Found mapping: Button ok -> ActionType.SINGLE:space
+[12:22:57] Executing: Button ok
+[12:22:57] TTE: 0.007585287094116211
+[12:22:57] Received IR code: 0x8D722287
+[12:22:57] Found mapping: Button ok -> ActionType.SINGLE:space
+[12:22:57] Executing: Button ok
+[12:22:57] TTE: 0.010791540145874023
+[12:22:57] Received IR code: 0x8D722287
+[12:22:57] Found mapping: Button ok -> ActionType.SINGLE:space
+[12:22:57] Executing: Button ok
+[12:22:57] TTE: 0.026713132858276367
+[12:22:58] Received IR code: 0x8D722287
+[12:22:58] Found mapping: Button ok -> ActionType.SINGLE:space
+[12:22:58] Executing: Button ok
+[12:22:58] TTE: 0.00027823448181152344
+[12:22:58] Received IR code: 0xE4F26EE3
+[12:22:58] No mapping found for 0xE4F26EE3
+[12:22:58] Sample available codes: ['0xBE412287', '0x8B742287', '0x8D722287']
+[12:22:58] TTE: 0.0089874267578125
+[12:22:59] Received IR code: 0x752395AE
+[12:22:59] No mapping found for 0x752395AE
+[12:22:59] Sample available codes: ['0xBE412287', '0x8B742287', '0x8D722287']
+[12:22:59] TTE: 0.00693511962890625
+[12:22:59] Received IR code: 0x8D722287
+[12:22:59] Found mapping: Button ok -> ActionType.SINGLE:space
+[12:22:59] Executing: Button ok
+[12:22:59] TTE: 0.016056060791015625
+[12:23:00] Received IR code: 0x8D722287
+[12:23:00] Found mapping: Button ok -> ActionType.SINGLE:space
+[12:23:00] Executing: Button ok
+[12:23:00] TTE: 0.004071712493896484
+[12:23:00] Received IR code: 0x8D722287
+[12:23:00] Found mapping: Button ok -> ActionType.SINGLE:space
+[12:23:00] Executing: Button ok
+[12:23:00] TTE: 0.001687765121459961
+[12:23:01] Received IR code: 0x8D722287
+[12:23:01] Found mapping: Button ok -> ActionType.SINGLE:space
+[12:23:01] Executing: Button ok
+[12:23:01] TTE: 0.014294147491455078
+[12:23:01] Received IR code: 0x8A752287
+[12:23:01] Found mapping: Button left -> ActionType.SINGLE:left
+[12:23:01] Executing: Button left
+[12:23:01] TTE: 0.021287202835083008
+[12:23:02] Received IR code: 0x8A752287
+[12:23:02] Found mapping: Button left -> ActionType.SINGLE:left
+[12:23:02] Executing: Button left
+[12:23:02] TTE: 0.009760379791259766
+[12:23:04] Received IR code: 0x8A752287
+[12:23:04] Found mapping: Button left -> ActionType.SINGLE:left
+[12:23:04] Executing: Button left
+[12:23:04] TTE: 0.0002682209014892578
+[12:23:04] Received IR code: 0x8A752287
+[12:23:04] Found mapping: Button left -> ActionType.SINGLE:left
+[12:23:04] Executing: Button left
+[12:23:04] TTE: 0.006946563720703125
+[12:23:05] Received IR code: 0x8A752287
+[12:23:05] Found mapping: Button left -> ActionType.SINGLE:left
+[12:23:05] Executing: Button left
+[12:23:05] TTE: 0.015645742416381836
+[12:23:05] Received IR code: 0x8A752287
+[12:23:05] Found mapping: Button left -> ActionType.SINGLE:left
+[12:23:05] Executing: Button left
+[12:23:05] TTE: 0.0002620220184326172
+[12:23:05] Received IR code: 0x8A752287
+[12:23:05] Found mapping: Button left -> ActionType.SINGLE:left
+[12:23:05] Executing: Button left
+[12:23:05] TTE: 0.020945072174072266
+[12:23:06] Received IR code: 0x8A752287
+[12:23:06] Found mapping: Button left -> ActionType.SINGLE:left
+[12:23:06] Executing: Button left
+[12:23:06] TTE: 0.01461029052734375
+[12:23:06] Received IR code: 0xBDE8A455
+[12:23:06] No mapping found for 0xBDE8A455
+[12:23:06] Sample available codes: ['0xBE412287', '0x8B742287', '0x8D722287']
+[12:23:06] TTE: 0.01650547981262207
+[12:23:06] Received IR code: 0x818DDF0B
+[12:23:06] No mapping found for 0x818DDF0B
+[12:23:06] Sample available codes: ['0xBE412287', '0x8B742287', '0x8D722287']
+[12:23:06] TTE: 0.01495361328125
+[12:23:06] Received IR code: 0x22AE7A28
+[12:23:06] No mapping found for 0x22AE7A28
+[12:23:06] Sample available codes: ['0xBE412287', '0x8B742287', '0x8D722287']
+[12:23:06] TTE: 0.01691126823425293
+[12:23:06] Received IR code: 0x8A752287
+[12:23:06] Found mapping: Button left -> ActionType.SINGLE:left
+[12:23:06] Executing: Button left
+[12:23:06] TTE: 0.011324167251586914
+[12:23:07] Received IR code: 0xE229A4E6
+[12:23:07] No mapping found for 0xE229A4E6
+[12:23:07] Sample available codes: ['0xBE412287', '0x8B742287', '0x8D722287']
+[12:23:07] TTE: 5.936622619628906e-05
+[12:23:08] Received IR code: 0x64EB4794
+[12:23:08] No mapping found for 0x64EB4794
+[12:23:08] Sample available codes: ['0xBE412287', '0x8B742287', '0x8D722287']
+[12:23:08] TTE: 0.01513981819152832
+[12:23:08] Received IR code: 0x65F83311
+[12:23:08] No mapping found for 0x65F83311
+[12:23:08] Sample available codes: ['0xBE412287', '0x8B742287', '0x8D722287']
+[12:23:08] TTE: 0.005534172058105469
+[12:23:08] Received IR code: 0x87782287
+[12:23:08] Found mapping: Button down -> ActionType.SINGLE:down
+[12:23:08] Executing: Button down
+[12:23:08] TTE: 0.01063680648803711
+[12:23:09] Received IR code: 0x87782287
+[12:23:09] Found mapping: Button down -> ActionType.SINGLE:down
+[12:23:09] Executing: Button down
+[12:23:09] TTE: 0.014187812805175781
+[12:23:09] Received IR code: 0x87782287
+[12:23:09] Found mapping: Button down -> ActionType.SINGLE:down
+[12:23:09] Executing: Button down
+[12:23:09] TTE: 0.00983572006225586
+[12:23:09] Received IR code: 0x12B07292
+[12:23:09] No mapping found for 0x12B07292
+[12:23:09] Sample available codes: ['0xBE412287', '0x8B742287', '0x8D722287']
+[12:23:09] TTE: 0.021393537521362305
+[12:23:10] Received IR code: 0x87782287
+[12:23:10] Found mapping: Button down -> ActionType.SINGLE:down
+[12:23:10] Executing: Button down
+[12:23:10] TTE: 0.0017757415771484375
+[12:23:10] Received IR code: 0x87782287
+[12:23:10] Found mapping: Button down -> ActionType.SINGLE:down
+[12:23:10] Executing: Button down
+[12:23:10] TTE: 0.0025262832641601562
+[12:23:11] Received IR code: 0x87782287
+[12:23:11] Found mapping: Button down -> ActionType.SINGLE:down
+[12:23:11] Executing: Button down
+[12:23:11] TTE: 0.00027561187744140625
+[12:23:11] Received IR code: 0x87782287
+[12:23:11] Found mapping: Button down -> ActionType.SINGLE:down
+[12:23:11] Executing: Button down
+[12:23:11] TTE: 0.0002892017364501953
+[12:23:12] Received IR code: 0x87782287
+[12:23:12] Found mapping: Button down -> ActionType.SINGLE:down
+[12:23:12] Executing: Button down
+[12:23:12] TTE: 0.0021753311157226562
+[12:23:12] Received IR code: 0x1A807A97
+[12:23:12] No mapping found for 0x1A807A97
+[12:23:12] Sample available codes: ['0xBE412287', '0x8B742287', '0x8D722287']
+[12:23:12] TTE: 5.888938903808594e-05
+[12:23:12] Received IR code: 0x956ECF8B
+[12:23:12] No mapping found for 0x956ECF8B
+[12:23:12] Sample available codes: ['0xBE412287', '0x8B742287', '0x8D722287']
+[12:23:12] TTE: 0.011796951293945312
+[12:23:13] Received IR code: 0x3FC469D9
+[12:23:13] No mapping found for 0x3FC469D9
+[12:23:13] Sample available codes: ['0xBE412287', '0x8B742287', '0x8D722287']
+[12:23:13] TTE: 0.001497507095336914
+[12:23:14] Received IR code: 0x87782287
+[12:23:14] Found mapping: Button down -> ActionType.SINGLE:down
+[12:23:14] Executing: Button down
+[12:23:14] TTE: 0.01528477668762207
+[12:23:14] Received IR code: 0x87782287
+[12:23:14] Found mapping: Button down -> ActionType.SINGLE:down
+[12:23:14] Executing: Button down
+[12:23:14] TTE: 0.016634225845336914
+[12:23:15] Received IR code: 0x8D722287
+[12:23:15] Found mapping: Button ok -> ActionType.SINGLE:space
+[12:23:15] Executing: Button ok
+[12:23:15] TTE: 0.0002841949462890625
+[12:23:18] Received IR code: 0x87782287
+[12:23:18] Found mapping: Button down -> ActionType.SINGLE:down
+[12:23:18] Executing: Button down
+[12:23:18] TTE: 0.018286705017089844
+[12:23:19] Received IR code: 0x88772287
+[12:23:19] Found mapping: Button up -> ActionType.SINGLE:up
+[12:23:19] Executing: Button up
+[12:23:19] TTE: 0.014523744583129883
+[12:23:20] Received IR code: 0x89762287
+[12:23:20] Found mapping: Button right -> ActionType.SINGLE:right
+[12:23:20] Executing: Button right
+[12:23:20] TTE: 0.013614177703857422
+[12:23:21] Received IR code: 0x8D722287
+[12:23:21] Found mapping: Button ok -> ActionType.SINGLE:space
+[12:23:21] Executing: Button ok
+[12:23:21] TTE: 0.0002803802490234375
+
+Shutdown signal received...
+[12:23:52] Stopping controller...
+[12:23:52] Controller stopped
+Controller stopped.

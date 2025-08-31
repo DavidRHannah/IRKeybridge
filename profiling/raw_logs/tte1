@@ -1,0 +1,126 @@
+=== IR Remote Controller Test ===
+This will test your IR remote setup.
+Make sure your Arduino is connected to COM4.
+
+Available profiles: ['Elegoo_Remote.json', 'Sanyo_NC092.json', 'Vizio_Generic_TV_Remote.json']
+Starting with profile: Sanyo_NC092.json
+[12:40:57] Loaded profile: Sanyo Remote
+[12:41:00] Controller started with profile: Sanyo Remote
+[12:41:00] Press any button on remote to test, STOP button to exit
+Controller started successfully!
+Connected to Arduino on COM4
+Profile loaded with IR code mappings
+
+TEST YOUR REMOTE NOW:
+  - Press any button on your IR remote
+  - You should see the action being executed
+  - Press the 'Function/Stop' button to exit
+  - Or press Ctrl+C to stop
+
+[12:41:09] TTE: 0.006854057312011719
+[12:41:09] Executing: Button power
+[12:41:09] TTE: 0.11245298385620117
+[12:41:12] Executing: Button power
+[12:41:12] TTE: 0.00027060508728027344
+[12:41:15] TTE: 1.2636184692382812e-05
+[12:41:27] Executing: Button power
+[12:41:27] TTE: 0.0002713203430175781
+[12:41:29] TTE: 0.005385637283325195
+[12:41:30] Executing: Button power
+[12:41:30] TTE: 0.00804591178894043
+[12:41:32] Executing: Button power
+[12:41:32] TTE: 0.018815040588378906
+[12:41:34] Executing: Button power
+[12:41:34] TTE: 0.0006618499755859375
+[12:41:35] Executing: Button power
+[12:41:35] TTE: 0.017685651779174805
+[12:41:38] Executing: Button ok
+[12:41:38] TTE: 0.012657880783081055
+[12:41:39] Executing: Button ok
+[12:41:39] TTE: 0.0002720355987548828
+[12:41:39] Executing: Button ok
+[12:41:39] TTE: 0.006485700607299805
+[12:41:40] Executing: Button ok
+[12:41:40] TTE: 0.0002601146697998047
+[12:41:41] Executing: Button ok
+[12:41:41] TTE: 0.009321928024291992
+[12:41:41] Executing: Button ok
+[12:41:41] TTE: 0.00017952919006347656
+[12:41:41] Executing: Button ok
+[12:41:41] TTE: 3.695487976074219e-05
+[12:41:42] Executing: Button ok
+[12:41:42] TTE: 0.004113674163818359
+[12:41:42] Executing: Button ok
+[12:41:42] TTE: 0.009640216827392578
+[12:41:42] Executing: Button ok
+[12:41:42] TTE: 0.020063400268554688
+[12:41:43] Executing: Button ok
+[12:41:43] TTE: 0.00026702880859375
+[12:41:43] Executing: Button ok
+[12:41:43] TTE: 0.02144002914428711
+[12:41:44] Executing: Button ok
+[12:41:44] TTE: 0.0002722740173339844
+[12:41:44] Executing: Button ok
+[12:41:44] TTE: 0.000270843505859375
+[12:41:44] Executing: Button ok
+[12:41:44] TTE: 0.018627643585205078
+[12:41:45] Executing: Button ok
+[12:41:45] TTE: 0.012262821197509766
+[12:41:45] Executing: Button ok
+[12:41:45] TTE: 0.019106626510620117
+[12:41:45] Executing: Button ok
+[12:41:45] TTE: 0.021123170852661133
+[12:41:46] Executing: Button ok
+[12:41:46] TTE: 0.0002789497375488281
+[12:41:46] Executing: Button ok
+[12:41:46] TTE: 0.012241125106811523
+[12:41:47] Executing: Button ok
+[12:41:47] TTE: 0.008361339569091797
+[12:41:47] Executing: Button ok
+[12:41:47] TTE: 0.0002529621124267578
+[12:41:50] Executing: Button ok
+[12:41:50] TTE: 0.00994563102722168
+[12:41:50] Executing: Button ok
+[12:41:50] TTE: 0.02087855339050293
+[12:41:51] Executing: Button ok
+[12:41:51] TTE: 0.022168636322021484
+[12:41:51] Executing: Button ok
+[12:41:51] TTE: 0.00666046142578125
+[12:41:52] Executing: Button ok
+[12:41:52] TTE: 0.005287885665893555
+[12:41:52] Executing: Button ok
+[12:41:52] TTE: 0.00025463104248046875
+[12:41:53] Executing: Button ok
+[12:41:53] TTE: 0.014580011367797852
+[12:41:53] Executing: Button ok
+[12:41:53] TTE: 0.015690326690673828
+[12:41:53] Executing: Button ok
+[12:41:53] TTE: 0.005136013031005859
+[12:41:54] Executing: Button ok
+[12:41:54] TTE: 0.0002486705780029297
+[12:41:55] Executing: Button ok
+[12:41:55] TTE: 0.0002422332763671875
+[12:41:55] Executing: Button ok
+[12:41:55] TTE: 0.013778448104858398
+[12:41:56] Executing: Button ok
+[12:41:56] TTE: 0.015597105026245117
+[12:42:01] Executing: Button power
+[12:42:01] TTE: 0.00030303001403808594
+[12:42:03] Executing: Button power
+[12:42:03] TTE: 0.0002949237823486328
+[12:42:04] TTE: 0.01994633674621582
+[12:42:04] Executing: Button power
+[12:42:04] TTE: 0.00029158592224121094
+[12:42:06] Executing: Button power
+[12:42:06] TTE: 0.009336233139038086
+[12:42:07] TTE: 0.0067331790924072266
+[12:42:07] Executing: Button power
+[12:42:07] TTE: 0.01766037940979004
+[12:42:08] TTE: 9.059906005859375e-06
+[12:42:08] Executing: Button power
+[12:42:08] TTE: 0.008752584457397461
+
+Shutdown signal received...
+[12:42:12] Stopping controller...
+[12:42:12] Controller stopped
+Controller stopped.

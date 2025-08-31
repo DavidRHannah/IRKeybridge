@@ -21,11 +21,9 @@ def main():
     
     controller = IRRemoteController()
     
-    # Show available profiles
     profiles = controller.list_available_profiles()
     print(f"Available profiles: {profiles}")
     
-    # Try to start with the Elegoo profile
     profile_name = "Sanyo_NC092.json"
     print(f"Starting with profile: {profile_name}")
     
