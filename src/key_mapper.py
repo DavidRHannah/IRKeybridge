@@ -1,44 +1,42 @@
 """
-Optimized Key mapping module for translating IR codes to keyboard actions.
+Key mapper with keyboard-like repeat behavior (initial delay before repeats).
 """
 
 import keyboard
 import time
 import threading
-from typing import Dict, Any, Optional, Callable
-from collections import defaultdict
+from typing import Dict, Optional, Callable
 from config_manager import RemoteProfile, KeyMapping, ActionType
 
 
 class KeyMapper:
     """
-    KeyMapper with non-blocking operations and caching.
+    KeyMapper that mimics standard keyboard repeat behavior.
     """
 
     def __init__(self):
         self.currently_pressed = set()
         self.last_code = None
+        self.last_mapping = None
         self.last_code_time = 0
-        self.last_action_time = 0 
         self.mappings = {}
         self.stop_callback = None
         self.status_callback = None
         
-        # Timing configuration
-        self.min_repeat_interval = 0.005  # 50ms - minimum time between held key repeats
-        self.key_release_timeout = 0.005  # 150ms - time before considering key released
-        self.double_click_window = 0.005   # 300ms - window for double-clicks
+        self.initial_repeat_delay = 0.3
+        self.repeat_rate = 0.03  # 30ms between repeats after initial delay (~33Hz)
+        self.release_timeout = 0.12
         
-        self.min_execution_interval = 0.0002  # 200 microseconds
-        self.last_execution_time = 0
-        
-        self.click_count = 0
-        self.last_click_code = None
-        self.last_click_time = 0
+        self.first_repeat_time = None
+        self.last_repeat_action_time = 0
+        self.repeat_started = False
         
         self.ghost_key_enabled = False
         self.single_tapping_enabled = False
+        self.repeat_enabled = True
         self.debug = False
+        
+        self.release_timer = None
     
     def set_mappings(self, mappings: Dict):
         """Set the key mappings."""
@@ -61,6 +59,8 @@ class KeyMapper:
     def _release_all(self):
         """Release all currently pressed keys."""
         if self.currently_pressed:
+            if self.debug:
+                self._log(f"Releasing {len(self.currently_pressed)} keys")
             for key in list(self.currently_pressed):
                 try:
                     keyboard.release(key)
@@ -68,16 +68,43 @@ class KeyMapper:
                     pass
             self.currently_pressed.clear()
     
+    def _schedule_release(self):
+        """Schedule automatic key release after timeout."""
+        if self.release_timer:
+            self.release_timer.cancel()
+        
+        self.release_timer = threading.Timer(
+            self.release_timeout, 
+            self._auto_release
+        )
+        self.release_timer.daemon = True
+        self.release_timer.start()
+    
+    def _auto_release(self):
+        """Automatically release keys when no signal received."""
+        current_time = time.time()
+        if (current_time - self.last_code_time) >= (self.release_timeout - 0.01):
+            if self.debug:
+                self._log("Auto-releasing (timeout)")
+            self._release_all()
+            self._reset_repeat_state()
+    
+    def _reset_repeat_state(self):
+        """Reset all repeat-related state."""
+        self.first_repeat_time = None
+        self.repeat_started = False
+        self.last_repeat_action_time = 0
+        self.last_code = None
+        self.last_mapping = None
+    
     def process_code(self, ir_code: str) -> bool:
         """
-        Process IR code with proper rapid press handling.
-        
-        This version properly handles:
-        - Rapid button presses
-        - Double-clicks
-        - Held buttons (continuous fire)
-        - Different buttons in quick succession
+        Process IR code or REPEAT signal with keyboard-like repeat behavior.
         """
+        current_time = time.time()
+        
+        if ir_code == "REPEAT":
+            return self._handle_repeat(current_time)
         
         mapping = self.mappings.get(ir_code)
         if not mapping:
@@ -85,64 +112,159 @@ class KeyMapper:
                 self._log(f"No mapping for: {ir_code}")
             return False
         
-        current_time = time.time()
-        
         if mapping.action_type == ActionType.SPECIAL:
             return self._handle_special(mapping.keys)
         
-        time_since_last = current_time - self.last_code_time
-        is_same_code = (ir_code == self.last_code)
+        is_new_button = (ir_code != self.last_code)
+        is_after_timeout = (current_time - self.last_code_time) > self.release_timeout
         
-        if is_same_code:
-            if time_since_last < self.min_repeat_interval:
-                if self.debug:
-                    self._log(f"Bounce detected ({time_since_last*1000:.1f}ms)")
-                return False
-            elif time_since_last < self.key_release_timeout:
-                press_type = "held"
-            else:
-                press_type = "new"
-        else:
-            press_type = "new"
-            self._release_all()
-        
-        if press_type == "new":
+        if is_new_button or is_after_timeout:
+            if is_new_button and self.currently_pressed:
+                self._release_all()
+            
+            self._reset_repeat_state()
+            
             if self.debug:
                 self._log(f"New press: {mapping.description or ir_code}")
             
-            if ir_code == self.last_click_code and \
-               (current_time - self.last_click_time) < self.double_click_window:
-                self.click_count += 1
-                if self.debug:
-                    self._log(f"Click #{self.click_count}")
-            else:
-                self.click_count = 1
-                self.last_click_code = ir_code
+            self._execute_initial_press(mapping)
             
-            self.last_click_time = current_time
+            self.last_code = ir_code
+            self.last_mapping = mapping
+            self.last_code_time = current_time
             
-            # Execute the action
-            self._execute_action(mapping, press_type="new")
+            self._schedule_release()
             
-        elif press_type == "held":
-            # Held key - handle based on action type
-            if mapping.action_type == ActionType.SINGLE:
-                # For single keys, just keep it pressed
-                if self.debug and time_since_last > 0.5:  # Log every 500ms
-                    self._log(f"Holding: {mapping.keys}")
-                # Key should already be pressed, no action needed
-            elif mapping.action_type in [ActionType.COMBO, ActionType.SEQUENCE]:
-                # For combos/sequences, might want to repeat
-                if self.single_tapping_enabled:
-                    # In tap mode, repeat the tap
-                    self._execute_action(mapping, press_type="repeat")
-            
-        # Update state
-        self.last_code = ir_code
+            return True
+        else:
+            if self.debug:
+                self._log(f"Ignoring bounce for {ir_code}")
+            return False
+    
+    def _handle_repeat(self, current_time: float) -> bool:
+        """
+        Handle REPEAT signal with keyboard-like delay behavior.
+        """
+        if not self.last_code or not self.last_mapping:
+            if self.debug:
+                self._log("REPEAT received but no last code")
+            return False
+        
         self.last_code_time = current_time
-        self.last_action_time = current_time
+        self._schedule_release()
+        
+        if not self.repeat_enabled:
+            return True
+        
+        if self.first_repeat_time is None:
+            self.first_repeat_time = current_time
+            if self.debug:
+                self._log(f"First REPEAT - waiting {self.initial_repeat_delay}s")
+            return True
+        
+        time_since_first_repeat = current_time - self.first_repeat_time
+        
+        if not self.repeat_started:
+            if time_since_first_repeat >= self.initial_repeat_delay:
+                self.repeat_started = True
+                if self.debug:
+                    self._log("Repeat delay passed - starting repeats")
+                self._execute_repeat_action(self.last_mapping)
+                self.last_repeat_action_time = current_time
+            return True
+        
+        time_since_last_action = current_time - self.last_repeat_action_time
+        
+        if time_since_last_action >= self.repeat_rate:
+            self._execute_repeat_action(self.last_mapping)
+            self.last_repeat_action_time = current_time
         
         return True
+    
+    def _execute_initial_press(self, mapping: KeyMapping):
+        """Execute the initial key press."""
+        try:
+            if self.single_tapping_enabled:
+                self._execute_tap(mapping)
+            else:
+                if mapping.action_type == ActionType.SINGLE:
+                    keyboard.press(mapping.keys)
+                    self.currently_pressed.add(mapping.keys)
+                    
+                elif mapping.action_type == ActionType.COMBO:
+                    if isinstance(mapping.keys, list):
+                        for key in mapping.keys:
+                            keyboard.press(key)
+                            self.currently_pressed.add(key)
+                    else:
+                        keyboard.press(mapping.keys)
+                        self.currently_pressed.add(mapping.keys)
+                        
+                elif mapping.action_type == ActionType.SEQUENCE:
+                    self._execute_sequence(mapping)
+                    
+        except Exception as e:
+            if self.debug:
+                self._log(f"Error executing initial press: {e}")
+    
+    def _execute_repeat_action(self, mapping: KeyMapping):
+        """Execute a repeat action after the initial delay."""
+        try:
+            action_type = mapping.action_type
+            
+            if self.single_tapping_enabled:
+                self._execute_tap(mapping)
+                if self.debug:
+                    self._log(f"Repeat tap: {mapping.keys}")
+                    
+            else:
+                if action_type == ActionType.SINGLE:
+                    keyboard.release(mapping.keys)
+                    keyboard.press(mapping.keys)
+                    if self.debug:
+                        self._log(f"Repeat key: {mapping.keys}")
+                        
+                elif action_type == ActionType.COMBO:
+                    if isinstance(mapping.keys, list):
+                        for key in mapping.keys:
+                            keyboard.release(key)
+                        for key in mapping.keys:
+                            keyboard.press(key)
+                    else:
+                        keyboard.release(mapping.keys)
+                        keyboard.press(mapping.keys)
+                    if self.debug:
+                        self._log(f"Repeat combo: {mapping.keys}")
+                        
+                elif action_type == ActionType.SEQUENCE:
+                    self._execute_sequence(mapping)
+                    if self.debug:
+                        self._log(f"Repeat sequence: {mapping.keys}")
+                        
+        except Exception as e:
+            if self.debug:
+                self._log(f"Error executing repeat: {e}")
+    
+    def _execute_tap(self, mapping: KeyMapping):
+        """Execute a tap (press and release) action."""
+        if mapping.action_type == ActionType.SINGLE:
+            keyboard.press_and_release(mapping.keys)
+        elif mapping.action_type == ActionType.COMBO:
+            if isinstance(mapping.keys, list):
+                keyboard.press_and_release('+'.join(mapping.keys))
+            else:
+                keyboard.press_and_release(mapping.keys)
+        elif mapping.action_type == ActionType.SEQUENCE:
+            self._execute_sequence(mapping)
+    
+    def _execute_sequence(self, mapping: KeyMapping):
+        """Execute a sequence of key presses."""
+        if isinstance(mapping.keys, list):
+            for key in mapping.keys:
+                keyboard.press_and_release(key)
+                time.sleep(0.02)
+        else:
+            keyboard.press_and_release(mapping.keys)
     
     def _handle_special(self, action: str) -> bool:
         """Handle special actions."""
@@ -158,137 +280,17 @@ class KeyMapper:
             self.single_tapping_enabled = not self.single_tapping_enabled
             self._log(f"Single tap: {'ON' if self.single_tapping_enabled else 'OFF'}")
             return True
+        elif action == "toggle_repeat":
+            self.repeat_enabled = not self.repeat_enabled
+            self._log(f"Keyboard repeat: {'ON' if self.repeat_enabled else 'OFF'}")
+            return True
         return False
-    
-    def _execute_action(self, mapping: KeyMapping, press_type: str = "new"):
-        """
-        Execute keyboard action.
-        
-        Args:
-            mapping: The key mapping to execute
-            press_type: "new" for new press, "repeat" for held key
-        """
-        keys = mapping.keys
-        
-        try:
-            if self.single_tapping_enabled:
-                # Tap mode - always press and release quickly
-                self._release_all()
-                
-                if mapping.action_type == ActionType.SINGLE:
-                    keyboard.press_and_release(keys)
-                elif mapping.action_type == ActionType.COMBO:
-                    if isinstance(keys, list):
-                        keyboard.press_and_release('+'.join(keys))
-                    else:
-                        keyboard.press_and_release(keys)
-                elif mapping.action_type == ActionType.SEQUENCE:
-                    if isinstance(keys, list):
-                        for key in keys:
-                            keyboard.press_and_release(key)
-                            time.sleep(0.02)  # Small delay between sequence keys
-                    else:
-                        keyboard.press_and_release(keys)
-                
-            else:
-                # Hold mode - press on new, keep pressed until release
-                if press_type == "new":
-                    if mapping.action_type == ActionType.SINGLE:
-                        # Only release and re-press if it's a different key
-                        if keys not in self.currently_pressed:
-                            self._release_all()
-                            keyboard.press(keys)
-                            self.currently_pressed.add(keys)
-                    
-                    elif mapping.action_type == ActionType.COMBO:
-                        self._release_all()
-                        if isinstance(keys, list):
-                            for key in keys:
-                                keyboard.press(key)
-                                self.currently_pressed.add(key)
-                        else:
-                            keyboard.press(keys)
-                            self.currently_pressed.add(keys)
-                    
-                    elif mapping.action_type == ActionType.SEQUENCE:
-                        self._release_all()
-                        if isinstance(keys, list):
-                            for key in keys:
-                                keyboard.press_and_release(key)
-                                time.sleep(0.02)
-                        else:
-                            keyboard.press_and_release(keys)
-                
-        except Exception as e:
-            if self.debug:
-                self._log(f"Error executing action: {e}")
     
     def cleanup(self):
         """Clean up and release all keys."""
+        if self.release_timer:
+            self.release_timer.cancel()
         self._release_all()
+        self._reset_repeat_state()
         if self.debug:
             self._log("Cleanup complete")
-
-# Test rapid presses
-def test_rapid_fire():
-    """Test rapid button press handling."""
-    import random
-    
-    print("Testing Rapid Fire Key Mapper")
-    print("-" * 40)
-    
-    mapper = KeyMapper()
-    mapper.debug = True
-    
-    # Test mappings
-    test_mappings = {
-        "0x123": KeyMapping(ActionType.SINGLE, "space", "Fire button"),
-        "0x456": KeyMapping(ActionType.SINGLE, "a", "Move left"),
-        "0x789": KeyMapping(ActionType.COMBO, ["ctrl", "s"], "Save"),
-    }
-    
-    mapper.set_mappings(test_mappings)
-    
-    print("\nSimulating rapid button presses...")
-    print("Watch the console and keyboard output\n")
-    
-    time.sleep(2)
-    
-    print("Test 1: Rapid fire (same button)")
-    for i in range(5):
-        mapper.process_code("0x123")
-        time.sleep(0.04)  # 80ms between presses (fast clicking)
-    
-    mapper._release_all()
-    time.sleep(1)
-    
-    # Test 2: Different buttons quickly
-    print("\nTest 2: Different buttons rapidly")
-    codes = ["0x123", "0x456", "0x123", "0x456"]
-    for code in codes:
-        mapper.process_code(code)
-        time.sleep(0.03)  # 60ms between different buttons
-    
-    mapper._release_all()
-    time.sleep(1)
-    
-    # Test 3: Double-click simulation
-    print("\nTest 3: Double-click")
-    mapper.process_code("0x123")
-    time.sleep(0.075)  # 150ms gap
-    mapper.process_code("0x123")
-    
-    mapper._release_all()
-    time.sleep(1)
-    
-    # Test 4: Held button (continuous)
-    print("\nTest 4: Held button")
-    for i in range(10):
-        mapper.process_code("0x456")
-        time.sleep(0.02)  # 20ms - simulating held button repeats
-    
-    mapper.cleanup()
-    print("\nTest complete!")
-
-if __name__ == "__main__":
-    test_rapid_fire()

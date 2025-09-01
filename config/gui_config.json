@@ -4,5 +4,5 @@
   "arduino_port": "COM4",
   "baud_rate": 115200,
   "auto_connect": false,
-  "debug_mode": false
+  "debug_mode": true
 }

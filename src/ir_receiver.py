@@ -114,7 +114,7 @@ class IRReceiver:
         """
         try:
             decoded = line.decode('ascii').strip()
-            if decoded.startswith('0x'):
+            if decoded.startswith('0x') or decoded == "REPEAT":
                 self.codes_received += 1
                 try:
                     self.code_queue.put_nowait(decoded)
@@ -125,9 +125,7 @@ class IRReceiver:
                         self.code_queue.put_nowait(decoded)
                     except:
                         pass
-            
-            elif decoded == "REPEAT":
-                pass
+
             elif decoded.startswith("OK:"):
                 pass
             elif decoded in ["READY", "RST"]:

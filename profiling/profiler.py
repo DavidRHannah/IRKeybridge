@@ -33,9 +33,9 @@ def profile_tte(tte_values, f):
         print(f"{k:20}: {v:.6f} seconds", file=f)
 
 if __name__ == "__main__":
-    with open("raw_logs/tte5", "r") as input_file:
+    with open("raw_logs/tte6", "r") as input_file:
         log_text = input_file.read()
     
-    with open("reports/tte5", "w") as output_file:
+    with open("reports/tte6", "w") as output_file:
         tte_values = parse_tte_from_log(log_text)
         profile_tte(tte_values, output_file)
