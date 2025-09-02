@@ -24,7 +24,7 @@ class KeyMapper:
         self.status_callback = None
         
         self.initial_repeat_delay = 0.3
-        self.repeat_rate = 0.03  # 30ms between repeats after initial delay (~33Hz)
+        self.repeat_rate = 0.03 
         self.release_timeout = 0.12
         
         self.first_repeat_time = None

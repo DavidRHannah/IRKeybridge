@@ -75,7 +75,7 @@ class IRRemoteController:
         return True
     
     def run(self):
-        """Optimized main loop with minimal overhead."""
+        """ Main loop with minimal overhead."""
         if not self.running:
             return
         
@@ -94,7 +94,7 @@ class IRRemoteController:
                     start = time.time()  # Uncomment for profiling
                     process_code(ir_code)
                     last_release_check = time.time()
-                    print(f"TTE: {time.time() - start:.6f}")  # Uncomment for profiling
+                    # print(f"TTE: {time.time() - start:.6f}")  # Uncomment for profiling
                 else:
                     current = time.time()
                     if (current - last_release_check) > release_interval:
@@ -102,7 +102,7 @@ class IRRemoteController:
                         self.mapper.last_code = None
                         last_release_check = current
                     else:
-                        time.sleep(0.0001)  # 0.1ms
+                        time.sleep(0.0001)
                         
         except KeyboardInterrupt:
             pass

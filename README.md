@@ -1,209 +1,215 @@
-IR Remote Remote To Keyboard
-My setup
-Elegoo Uno R3
-IR Receiver
-IR Based Remote (i.e. Vizio)
-High-Level Overview
-The Uno R3 microcontroller is for sending the IR Receiver's digital output from the input of an IR remote (i.e. Vizio remote) to the Serial Output by the virtual COM port (i.e. COM5) so that the data from the receiver can be processed by a python script. Since the Elegoo Uno R3 is not intended to be a HID device (although it can be made to be), the python script should be running when when using the IR remote.
+# 🎮 IRKeybridge
 
-Steps For Implementing Yourself
-Obtain cheap microcontroller and IR receiver
-Find old Vizio IR remote
-Flash given firmware onto a microcontroller
-Setup keybinds in game and/or script
-Run python script
-Note
-You can generate an executable for yourself to run in the background so you don't have to worry about keeping the python script running by using pyinstaller:
-pyinstaller --onefile --noconsole --uac-admin=False ir_control.py
-You can end the exe by ending the process via Task Manager or by hitting the STOP (x30) key or whatever you program it to be.
-You should now be able to use your remote! Hopefully...
+**Transform any IR remote into a wireless keyboard controller**
 
-Changes
-The current implementation uses the python keyboard library for its precise customization of keyboard commands/inputs.
-The inputs are almost perfect in terms of responsiveness and I have enough accuracy to even drive with the remote! Both tapping and holding the remote translate very well to keyboard presses now.
-I plan on now removing the janky single tapping and ghost key flags I was using to get around the issues that were previously unsolved.
-Why Bother
-I play a lot of Beamng.Drive and there are only so many buttons on my Logitech G920 wheel that can be used to easily control the game. Reaching up to reach use the keyboard is not fun and really annoying, so I decided to figure out a way to add easily accessible keyboard controls without spending another dollar. It allows me to have a lot more fun for free!
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Python](https://img.shields.io/badge/python-3.8+-green.svg)
+![Coverage](https://img.shields.io/badge/coverage-70%25-brightgreen.svg)
+![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux-lightgrey.svg)
 
+---
+
+## 🚀 What is IRKeybridge?
+
+IRKeybridge lets you use **any IR remote control** as a wireless keyboard for your PC. Perfect for gaming, media control, or any application where you need quick access to keyboard shortcuts without reaching for your keyboard.
+
+Created to add extra controls for BeamNG.Drive racing without spending a single dollar more!
+
+### ✨ Key Features
+
+- 🎯 **Universal Remote Support** - Works with TV remotes, cable boxes, air conditioners - anything with IR
+- ⚡ **Low Latency** - Responsive enough for real-time gaming
+<!-- - 🎮 **Gaming Optimized** - Ghost key mode maintains game focus -->
+- 🖥️ **Dual Interface** - Beautiful GUI + powerful CLI
+<!-- - 📝 **Smart Profiles** - Save configurations for different remotes/games -->
+- 🔧 **Easy Setup** - Learn IR codes directly from your remote
+
+---
+
+## 🛠️ Quick Setup
+
+### Hardware Requirements
+- Arduino Uno/Nano (or compatible)
+- IR Receiver (TSOP4838, VS1838B, or similar) 
+- Any IR remote control
+- USB cable
+
+### Software Installation
 ```bash
+git clone https://github.com/yourusername/IRKeybridge.git
+cd IRKeybridge
+pip install -r requirements.txt
+```
+
+### Flash Arduino Firmware
+1. Upload the provided Arduino sketch to your microcontroller
+2. Connect IR receiver to your Arduino
+3. Note the COM port in Device Manager
+
+### Run the Application
+```bash
+# GUI Mode (Recommended for first-time setup)
 python run_app.py --gui
+
+# CLI Mode
 python run_app.py --cli
+
+# Quick start with interactive setup
 python run_app.py
 ```
 
-## Features
+---
 
-### Core Features
-- **Universal Remote Support**: Works with any IR remote control
-- **Multiple Action Types**: Single keys, combinations, sequences, and special actions
-- **Profile Management**: Save and load different remote configurations
-- **Real-time Processing**: Low-latency IR code processing
-- **Production Ready**: Comprehensive error handling and logging
+## 🎮 Usage Examples
 
-### GUI Features
-- **Visual Configuration**: Easy-to-use graphical interface
-- **IR Code Learning**: Learn codes directly from your remote
-- **Profile Editor**: Create and modify remote profiles
-- **Serial Monitor**: Real-time Arduino communication monitoring
-- **System Configuration**: Manage all settings from one place
+### Gaming Setup
+Map your TV remote buttons to game controls:
+- **Volume Up/Down** → Gear shifting
+- **Channel Up/Down** → Camera angles  
+- **Play/Pause** → Handbrake
+- **Arrow Keys** → Menu navigation
 
-### CLI Features
-- **Command-line Interface**: Full CLI with comprehensive options
-- **Interactive Mode**: Guided profile selection
-- **Batch Operations**: Script-friendly commands
-- **Status Monitoring**: Real-time system status
+### Media Control
+- **Power** → Play/Pause media
+- **Volume** → System volume
+- **Numbers** → Hotkeys for applications
 
-### Special Modes
-- **Ghost Key Mode**: Maintains application focus for games
-- **Single Tap Mode**: Quick key press mode for rapid actions
-- **Debug Mode**: Detailed logging for troubleshooting
+### Custom Workflows
+Create button combinations and sequences for complex actions.
 
-The GUI provides:
-- **System Config**: Configure Arduino connection and settings
-- **Remote Config**: Learn IR codes and create button mappings
-- **Profile Management**: Save and load different configurations
+---
 
-### CLI Mode
+## 📱 Interface Options
 
-Use the command-line interface for advanced control:
+### 🖼️ GUI Mode
+- **Visual IR Learning** - Point remote, press button, assign action
+- **Profile Manager** - Create and switch between remote configurations  
+- **Serial Monitor** - Real-time Arduino communication
+- **System Settings** - Configure all options in one place
 
+### 💻 CLI Mode  
 ```bash
+# List available profiles
 python run_app.py --cli --list-profiles
+
+# Load specific profile
 python run_app.py --cli --profile my_remote.json
-python run_app.py --cli --create-default
-python run_app.py --cli --status
+
+# Enable special modes
 python run_app.py --cli --enable-ghost --enable-tap
+
+# Create executable
+pyinstaller --onefile --noconsole run_app.py
 ```
 
-### Configuration
+---
 
-#### Remote Profiles
+## 📋 Configuration
 
-Profiles are stored in `config/profiles/` as JSON files:
-
+### Profile Structure
 ```json
 {
-    "name": "My Remote",
-    "brand": "Samsung",
-    "model": "TV Remote",
+    "name": "Gaming Remote",
+    "brand": "Samsung TV",
     "mappings": {
         "FF": {
             "action_type": "single",
             "keys": "space",
-            "description": "Play/Pause"
+            "description": "Jump"
         },
         "AA": {
-            "action_type": "combo",
-            "keys": ["ctrl", "c"],
-            "description": "Copy"
+            "action_type": "combo", 
+            "keys": ["ctrl", "shift", "r"],
+            "description": "Quick Restart"
         }
     }
 }
 ```
 
-## Testing
+### Action Types
+- **Single Key** - `space`, `enter`, `f1`
+- **Key Combinations** - `["ctrl", "c"]`, `["alt", "tab"]`
+- **Key Sequences** - Multiple actions in order
+- **Special Actions** - System commands, macros
 
-This application includes comprehensive testing with >70% code coverage:
+---
 
+## 🧪 Testing & Development
+
+### Run Tests
 ```bash
+# Full test suite
 python run_app.py --test
+
+# Coverage report
 python run_app.py --coverage
+
+# Debug mode
+python run_app.py --cli --debug --verbose
 ```
-
-### Test Coverage
-
-The test suite covers:
-- **Unit Tests**: All core modules (config, IR receiver, key mapper, controller)
-- **Integration Tests**: End-to-end application flow
-- **GUI Tests**: User interface components (mocked)
-- **CLI Tests**: Command-line interface functionality
-- **Error Handling**: Comprehensive error scenarios
-
-## Executables
-### Windows Executable
-
-Create a standalone executable:
-
-```bash
-pip install pyinstaller
-pyinstaller --onefile --noconsole --name="IR-Remote-Controller" run_app.py
-```
-
-### Service Installation
-
-For background operation, create a Windows service or Linux daemon using the CLI mode.
-
-## Development
 
 ### Code Formatting
-
 ```bash
 black src/ tests/
 ```
 
-## Troubleshooting
-
-### Common Issues
-
-1. **Serial Connection Failed**
-   - Check COM port in Device Manager
-   - Verify microcontroller is connected and recognized
-   - Try different USB cable/port
-
-2. **No IR Codes Received**
-   - Verify microcontroller firmware is uploaded correctly
-   - Check IR receiver wiring and power
-   - Test with known working remote
-
-3. **Keys Not Working**
-   - Verify profile mappings are correct
-   - Check if target application has focus
-   - Try enabling Ghost Key mode for games
-
-4. **GUI Won't Start**
-   - Install PyQt5: `pip install PyQt5`
-   - Check Python version (3.8+ required)
-   - Try CLI mode as fallback
-
-### Debug Mode
-
-Enable extensive logging:
-
-```bash
-python run_app.py --cli --debug --verbose
-```
-
-### Getting Help
-
-1. Check the comprehensive documentation in `docs/`
-2. Review existing configurations in `config/profiles/`
-3. Examine Microcontroller firmware for hardware issues
-4. Run the test suite to verify installation
-
-## License
-
-This project is open source. See LICENSE file for details.
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Add comprehensive tests
-4. Update documentation
-5. Submit a pull request
-
-## Hardware Requirements
-
-- **Arduino**: Uno, Nano, or compatible microcontroller
-- **IR Receiver**: TSOP4838, VS1838B, or similar
-- **Remote**: Most infrared remote control
-- **Connection**: USB cable for microcontroller board
-
-## Software Requirements
-
-- **Python**: 3.8 or higher
-- **Core Dependencies**: pyserial, keyboard
-- **GUI Dependencies**: PyQt5 (optional)
-- **Development**: pytest, coverage tools
+**Test Coverage:** >70% with comprehensive unit, integration, and GUI tests.
 
 ---
+
+## 🔧 Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| **No Serial Connection** | Check COM port, try different USB cable |
+| **IR Codes Not Received** | Verify firmware upload, check IR receiver wiring |
+| **Keys Not Working** | Confirm profile mappings, try Ghost Key mode |
+| **GUI Won't Start** | Install PyQt5, check Python 3.8+ |
+
+**Debug Mode:** `python run_app.py --cli --debug` for detailed logging.
+
+---
+
+## 🎯 Why IRKeybridge?
+
+✅ **Free Solution** - No expensive gaming keypads needed  
+✅ **Universal Compatibility** - Works with any IR remote you have  
+✅ **Gaming Performance** - Low latency, responsive controls  
+✅ **Customizable** - Map any button to any keyboard action  
+✅ **Production Ready** - Comprehensive error handling and logging  
+✅ **Open Source** - Modify and extend as needed  
+
+---
+
+## 📦 Create Standalone Executable
+
+```bash
+pip install pyinstaller
+pyinstaller --onefile --noconsole --name="IRKeybridge" run_app.py
+```
+
+Stop the background service via Task Manager or your configured stop button.
+
+---
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create feature branch (`git checkout -b new-feature`)
+3. Add tests for new functionality
+4. Update documentation
+5. Submit pull request
+
+---
+
+## 📄 License
+
+This project is open source under the MIT License. See `LICENSE` file for details.
+
+---
+
+## 🙏 Acknowledgments
+
+Created out of the need for extra accessible controls in BeamNG.Drive racing.
+
+**Happy Racing! 🏎️**
