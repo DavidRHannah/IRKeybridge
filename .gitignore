@@ -99,7 +99,6 @@ ir_codes.py
 /docs
 # /config
 makefile
-/tests
 pyproject.toml
 .pre-commit-config.yml
 /.github
