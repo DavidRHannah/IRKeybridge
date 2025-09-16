@@ -15,6 +15,7 @@ class KeyMapper:
     """
 
     def __init__(self):
+        self.running = True
         self.currently_pressed = set()
         self.last_code = None
         self.last_mapping = None
@@ -24,7 +25,7 @@ class KeyMapper:
         self.status_callback = None
         
         self.initial_repeat_delay = 0.3
-        self.repeat_rate = 0.03 
+        self.repeat_rate = 0.009 
         self.release_timeout = 0.12
         
         self.first_repeat_time = None
@@ -37,6 +38,9 @@ class KeyMapper:
         self.debug = False
         
         self.release_timer = None
+        
+    def disable(self):
+        self.running = False
     
     def set_mappings(self, mappings: Dict):
         """Set the key mappings."""
@@ -67,6 +71,8 @@ class KeyMapper:
                 except:
                     pass
             self.currently_pressed.clear()
+            
+        keyboard.unhook_all()
     
     def _schedule_release(self):
         """Schedule automatic key release after timeout."""
@@ -101,6 +107,8 @@ class KeyMapper:
         """
         Process IR code or REPEAT signal with keyboard-like repeat behavior.
         """
+        if not self.running:
+            return False
         current_time = time.time()
         
         if ir_code == "REPEAT":
@@ -288,9 +296,11 @@ class KeyMapper:
     
     def cleanup(self):
         """Clean up and release all keys."""
+        
         if self.release_timer:
             self.release_timer.cancel()
-        self._release_all()
         self._reset_repeat_state()
+        self._release_all()
+        
         if self.debug:
             self._log("Cleanup complete")

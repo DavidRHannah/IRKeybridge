@@ -154,17 +154,17 @@ class IRReceiver:
     
     def stop_receiving(self):
         """Stop receiving IR codes."""
+        
+        if not self.receiving:
+            return
+        
         self.receiving = False
         
-        if self.receiver_thread:
-            self.receiver_thread.join(timeout=0.5)
-            self.receiver_thread = None
+        if self.receiver_thread and self.receiver_thread.is_alive():
+            self.receiver_thread.join(timeout=1)
+            if self.receiver_thread.is_alive():
+                print("WARNING: Thread did not stop cleanly")
         
-        while not self.code_queue.empty():
-            try:
-                self.code_queue.get_nowait()
-            except Empty:
-                break
     
     def get_code(self, timeout: float = 0) -> Optional[str]:
         """
@@ -208,6 +208,7 @@ class IRReceiver:
     
     def disconnect(self):
         """Clean disconnect."""
+        self.flush_buffer()
         self.stop_receiving()
         
         if self.serial_connection:

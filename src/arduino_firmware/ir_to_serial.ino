@@ -1,204 +1,71 @@
-/*
- * Elegoo Uno R3
- * Pin Config:
- * - IR Receiver: Pin 10
- * - Status LED: Pin 13
- * - Debug LED: Pin 12
- */
-
 #include <Arduino.h>
 #include <IRremote.hpp>
 
-const int RECV_PIN = 10;           
-const int STATUS_LED = 13;         
-const int DEBUG_LED = 12;          
+const int RECV_PIN = 10;
 const unsigned long BAUD_RATE = 115200;
 
-unsigned long lastValidCodeTime = 0;
-uint32_t lastValidCode = 0;
-decode_type_t lastValidProtocol = UNKNOWN;
+const unsigned long REPEAT_THRESHOLD = 150;
+const unsigned long MIN_CODE_INTERVAL = 50;
+
+uint32_t lastCode = 0;
+unsigned long lastCodeTime = 0;
+bool initialized = false;
 
 void setup() {
   Serial.begin(BAUD_RATE);
+  IrReceiver.begin(RECV_PIN, false);
+  IrReceiver.setReceivePin(RECV_PIN);
 
-  pinMode(STATUS_LED, OUTPUT);
-  pinMode(DEBUG_LED, OUTPUT);
-
-  
-  delay(500);
-
-  IrReceiver.begin(RECV_PIN, ENABLE_LED_FEEDBACK);  
-
-  
-  blinkLED(STATUS_LED, 3, 200);
-
-  Serial.println(F("=== IR Remote Receiver v4.x ==="));
-  Serial.println(F("Serial communication OK"));
-  Serial.println(F("Waiting for valid IR signals..."));
-  Serial.println(F("====================================="));
-
-  digitalWrite(STATUS_LED, HIGH);
+  Serial.println(F("READY"));
+  initialized = true;
 }
 
 void loop() {
   if (IrReceiver.decode()) {
     processIRSignal();
-    IrReceiver.resume(); 
+    IrReceiver.resume();
   }
-
-  handleSerialCommands();
-  handleStatusLED();
-
-  delay(50); 
 }
 
-void processIRSignal() {
+inline void processIRSignal() {
   unsigned long currentTime = millis();
-
-  
-  digitalWrite(DEBUG_LED, HIGH);
-
   auto &data = IrReceiver.decodedIRData;
-
   
-  if (!isValidIRSignal(data)) {
-    digitalWrite(DEBUG_LED, LOW);
+  if (data.protocol == UNKNOWN || 
+      data.decodedRawData == 0 || 
+      data.numberOfBits < 8) {
     return;
   }
-
   
-  if (isRepeatSignal(data, currentTime)) {
-    digitalWrite(DEBUG_LED, LOW);
-    return;
-  }
-
-  printIRDataSingleLine(data);
-  
-  lastValidCode = data.decodedRawData;
-  lastValidProtocol = data.protocol;
-  lastValidCodeTime = currentTime;
-
-  digitalWrite(DEBUG_LED, LOW);
-}
-
-void printIRDataSingleLine(const IRData &data) {
-  // Format: IR_DATA|Protocol:VALUE|Raw:0xHEXVALUE|Bits:COUNT|Command:0xCMD|Address:0xADDR
-  Serial.print(F("IR_DATA|Protocol:"));
-  Serial.print(getProtocolName(data.protocol));
-  Serial.print(F("|Raw:0x"));
-  Serial.print(data.decodedRawData, HEX);
-  Serial.print(F("|Bits:"));
-  Serial.print(data.numberOfBits);
-  
-  if (data.protocol != UNKNOWN) {
-    Serial.print(F("|Command:0x"));
-    if (data.command < 0x10) Serial.print(F("0"));
-    Serial.print(data.command, HEX);
-    Serial.print(F("|Address:0x"));
-    if (data.address < 0x10) Serial.print(F("0"));
-    Serial.print(data.address, HEX);
+  if (data.decodedRawData == lastCode) {
+    unsigned long timeDiff = currentTime - lastCodeTime;
+    if (timeDiff < MIN_CODE_INTERVAL) {
+      return; 
+    }
+    if (timeDiff < REPEAT_THRESHOLD) {
+      return;
+    }
   }
   
-  Serial.println(); 
-}
-
-bool isValidIRSignal(const IRData &data) {
-  if (data.protocol == UNKNOWN && data.decodedRawData == 0) {
-    return false;
-  }
-  if (data.numberOfBits < 8) {
-    return false; 
-  }
-  if (data.decodedRawData == 0x0 || data.decodedRawData == 0x1200 || data.decodedRawData == 0xFFFFFFFF) {
-    return false;
-  }
-  return true;
-}
-
-bool isRepeatSignal(const IRData &data, unsigned long currentTime) {
-  return (data.decodedRawData == lastValidCode &&
-          data.protocol == lastValidProtocol &&
-          (currentTime - lastValidCodeTime) < 300);
-}
-
-String getProtocolName(decode_type_t protocol) {
-  switch (protocol) {
-    case NEC: return F("NEC");
-    case SONY: return F("SONY");
-    case RC5: return F("RC5");
-    case RC6: return F("RC6");
-    case SAMSUNG: return F("SAMSUNG");
-    case LG: return F("LG");
-    case JVC: return F("JVC");
-    case PANASONIC: return F("PANASONIC");
-    case WHYNTER: return F("WHYNTER");
-    default: return F("UNKNOWN");
-  }
-}
-
-void handleStatusLED() {
-  static unsigned long lastToggle = 0;
-  static bool ledState = false;
-  unsigned long currentTime = millis();
-
+  Serial.print(F("0x"));
+  Serial.println(data.decodedRawData, HEX);
   
-  if (currentTime - lastValidCodeTime > 5000) {
-    if (currentTime - lastToggle > 2000) {
-      ledState = !ledState;
-      digitalWrite(STATUS_LED, ledState);
-      lastToggle = currentTime;
-    }
-  } else {
-    digitalWrite(STATUS_LED, HIGH);
-  }
+  lastCode = data.decodedRawData;
+  lastCodeTime = currentTime;
 }
 
-void handleSerialCommands() {
-  if (Serial.available()) {
-    String command = Serial.readStringUntil('\n');
-    command.trim();
-    command.toUpperCase();
-
-    if (command == "STATUS") {
-      Serial.println(F("System Status: READY"));
-      Serial.print(F("Last valid code: 0x"));
-      Serial.println(lastValidCode, HEX);
-      Serial.print(F("Time since last code: "));
-      Serial.print((millis() - lastValidCodeTime) / 1000);
-      Serial.println(F(" seconds"));
-    } 
-    else if (command == "TEST") {
-      Serial.println(F("Serial communication test: OK"));
-      blinkLED(STATUS_LED, 2, 100);
+void serialEvent() {
+  while (Serial.available()) {
+    char c = Serial.read();
+    if (c == 'S') { 
+      Serial.print(F("OK:"));
+      Serial.println(lastCode, HEX);
+    } else if (c == 'R') { 
+      lastCode = 0;
+      lastCodeTime = 0;
+      IrReceiver.resume();
+      Serial.println(F("RST"));
     }
-    else if (command == "RESET") {
-      Serial.println(F("Resetting IR receiver..."));
-      IrReceiver.start();
-      Serial.println(F("Reset complete"));
-    }
-    else if (command == "HELP") {
-      Serial.println(F("Available commands:"));
-      Serial.println(F("  STATUS - Show system status"));
-      Serial.println(F("  TEST   - Test serial communication"));
-      Serial.println(F("  RESET  - Reset IR receiver"));
-      Serial.println(F("  HELP   - Show this help"));
-    }
-    else if (command == "DEBUG_ON") {
-      Serial.println(F("Debug mode enabled - will show detailed IR output"));
-    }
-    else if (command == "DEBUG_OFF") {
-      Serial.println(F("Debug mode disabled - single line output only"));
-    }
+    while (Serial.available()) Serial.read();
   }
-}
-
-void blinkLED(int pin, int times, int delayMs) {
-  bool originalState = digitalRead(pin);
-  for (int i = 0; i < times; i++) {
-    digitalWrite(pin, HIGH);
-    delay(delayMs);
-    digitalWrite(pin, LOW);
-    delay(delayMs);
-  }
-  digitalWrite(pin, originalState);
 }

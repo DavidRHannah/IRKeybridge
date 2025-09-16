@@ -30,8 +30,8 @@
       "description": "Button iheartradio"
     },
     "0xCA35FB04": {
-      "action_type": "single",
-      "keys": "left",
+      "action_type": "combo",
+      "keys": ["shift", "tab"],
       "description": "Button rewind"
     },
     "0xC837FB04": {
@@ -46,7 +46,7 @@
     },
     "0xC936FB04": {
       "action_type": "single",
-      "keys": "right",
+      "keys": "tab",
       "description": "Button fastforward"
     },
     "0xC639FB04": {
@@ -56,12 +56,12 @@
     },
     "0xCB34FB04": {
       "action_type": "single",
-      "keys": "r",
+      "keys": "alt+f4",
       "description": "Button record"
     },
     "0xCF30FB04": {
       "action_type": "single",
-      "keys": "s",
+      "keys": "escape",
       "description": "Button stop media"
     },
     "0xB04FFB04": {
@@ -106,7 +106,7 @@
     },
     "0xD22DFB04": {
       "action_type": "single",
-      "keys": "home",
+      "keys": "windows+ctrl+o",
       "description": "Button home"
     },
     "0xFF00FB04": {
@@ -126,7 +126,7 @@
     },
     "0x8877FB04": {
       "action_type": "single",
-      "keys": "d",
+      "keys": "alt+tab",
       "description": "Button display"
     },
     "0x9867FB04": {

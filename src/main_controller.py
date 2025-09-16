@@ -41,8 +41,15 @@ class IRRemoteController:
         if profile_path:
             self.load_profile(profile_path)
         
-        signal.signal(signal.SIGINT, lambda s, f: self.stop())
+        signal.signal(signal.SIGINT, self._signal_handler)
+        signal.signal(signal.SIGTERM, self._signal_handler)
         
+    def _signal_handler(self, signum, frame):
+        """Proper signal handling with guaranteed cleanup."""
+        print("\nShutdown signal received...")
+        self.stop()
+        sys.exit(0)
+    
     def load_profile(self, profile_path):
         """Load and optimize profile."""
         import json
@@ -111,11 +118,11 @@ class IRRemoteController:
     
     def stop(self):
         """Stop the controller."""
-        if self.running:
-            self.running = False
-            self.mapper._release_all()
-            self.receiver.disconnect()
-            print("Controller stopped")
+        self.running = False
+        self.receiver.disconnect()
+        self.mapper.disable()
+        self.mapper.cleanup()
+        print("Controller stopped")
             
     def list_available_profiles(self) -> list[str]:
         """
